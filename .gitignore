@@ -1,0 +1,202 @@
+# macOS
+.DS_Store
+*.icloud
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Cursor
+.cursor/
+
+# JetBrains IDEs (IntelliJ IDEA, GoLand, RustRover, WebStorm, PyCharm, CLion, etc.)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Fleet
+.fleet/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Vim
+*~
+[._]*.s[a-v][a-z]
+!*.svg
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Emacs
+*#
+.#*
+
+# Go
+bin/
+pkg/
+*.test
+*.out
+coverage.out
+coverage.html
+cover.out
+*.coverprofile
+
+# Delve
+__debug_bin
+
+# Go workspace
+go.work.sum
+
+# Rust
+target/
+**/target/
+
+# Ignore Cargo.lock only for libraries
+# Cargo.lock
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Bun
+.bun/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+build/
+
+# Kotlin
+.kotlin/
+
+# Maven
+target/
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ansible
+*.retry
+
+# Docker
+.docker/
+
+# Kubernetes
+.kube/
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+*.keystore
+secrets.*
+secret.*
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Claude Code
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+
+# Aider
+.aider*
+
+# Tags
+tags
+
+# Notes
+.note/
+pr_cleanup.md
+desired_behavior.md
+
+# Profiling
+profile.pb
+*.mm_profdata
+chrome_profiler.json
+
+# Project-specific
+app/Carthage
+app/frameworks/default/Carthage
+app/frameworks/dev/Carthage
+app/frameworks/**/*.xcframework
+
+/target
+/app/target
+/warp.xcworkspace
+
+app/src/server/graphql/schema/generated
+crates/command-signatures-v2/js/build
+crates/command-signatures-v2/js/node_modules
+
+channel_versions_test.json
+
+crates/warp_files/test_data/test_write
+
+script/font_fallback/downloaded_fonts
+
+script/windows/Output
+
+warp.pty.recording
+
+frame_capture_*.png
+
+app/src/persistence/schema.rs.orig
