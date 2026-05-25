@@ -700,6 +700,56 @@ fn active_session_state(
 }
 
 #[test]
+fn terminal_workspace_starts_with_terminal_session() {
+    App::test((), |mut app| async move {
+        initialize_app(&mut app);
+
+        let workspace = mock_workspace(&mut app);
+        workspace.read(&app, |workspace, ctx| {
+            workspace
+                .active_tab_pane_group()
+                .as_ref(ctx)
+                .focused_session_view(ctx)
+                .expect("workspace should start on a terminal session");
+        });
+    });
+}
+
+#[test]
+fn removed_product_surfaces_are_absent_from_left_panel_views() {
+    let _agent_history = FeatureFlag::AgentViewConversationListView.override_enabled(true);
+
+    App::test((), |mut app| async move {
+        initialize_app(&mut app);
+
+        app.update(|ctx| {
+            AISettings::handle(ctx).update(ctx, |settings, ctx| {
+                settings
+                    .show_conversation_history
+                    .set_value(true, ctx)
+                    .expect("should enable conversation history in test");
+            });
+        });
+
+        app.read(|ctx| {
+            let views = Workspace::compute_left_panel_views(ctx);
+            assert!(
+                !views.contains(&ToolPanelView::WarpDrive),
+                "Warp Drive should be removed from the left panel"
+            );
+            assert!(
+                !views.contains(&ToolPanelView::ConversationListView),
+                "Agent conversations should be removed from the left panel"
+            );
+            assert!(
+                views.contains(&ToolPanelView::ProjectExplorer),
+                "terminal-adjacent project explorer should remain available"
+            );
+        });
+    });
+}
+
+#[test]
 fn restore_conversation_in_active_pane_enters_existing_live_conversation_without_loading() {
     let _agent_view = FeatureFlag::AgentView.override_enabled(true);
 

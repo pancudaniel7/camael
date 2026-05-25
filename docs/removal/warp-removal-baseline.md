@@ -220,16 +220,53 @@ The commands below were run without intentionally changing application behavior.
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `cargo build -p warp --bin warp-oss --features gui` | PASS | Built the main app binary in dev profile. |
-| `cargo check -p warp --bin warp-oss --features gui` | PASS | Typecheck-equivalent baseline passed. |
+| `cargo build -p warp --bin warp-oss --features gui` | PASS | Built the main app binary in dev profile after route-disable changes. |
+| `cargo check -p warp --bin warp-oss --features gui` | PASS | Typecheck-equivalent baseline passed after route-disable changes. |
 | `cargo fmt -- --check` | PASS | No Rust formatting issues reported. |
 | `./script/run-clang-format.py -r --extensions 'c,h,cpp,m' ./crates/warpui/src/ ./app/src/` | PASS | No C/C++/Obj-C formatting issues reported. |
 | `find . -name "*.wgsl" -exec wgslfmt --check {} +` | PASS | No WGSL formatting issues reported. |
 | `./script/lint_powershell -ci` | PASS_WITH_FINDINGS | Reported `Invoke-ScriptAnalyzer` null-reference output in `app/assets/bundled/bootstrap/`, then 15 informational findings in `script/windows/*.ps1`. No Error/Warning severity violations were reported. |
-| `cargo clippy --workspace --exclude warp_completer --all-targets --tests -- -D warnings && cargo clippy -p warp_completer --all-targets --tests -- -D warnings` | FAIL | `command-signatures-v2` build script failed because repo JS build expects Corepack-managed `yarn@4.0.1`, but environment resolved global `yarn 1.22.22`. |
-| `cargo nextest run --no-fail-fast --workspace --exclude command-signatures-v2` | FAIL | Completed in 131.266s. Summary: 6933 tests run, 6918 passed, 15 failed, 85 skipped. Included many passing terminal shell/UI integration tests before failing existing cases. |
+| `cargo clippy --workspace --exclude warp_completer --all-targets --tests -- -D warnings` | FAIL | `command-signatures-v2` build script failed because repo JS build expects Corepack-managed `yarn@4.0.1`, but environment resolved global `yarn 1.22.22`. |
+| `cargo nextest run --no-fail-fast --workspace --exclude command-signatures-v2` | FAIL | Completed in 131.440s. Summary: 6937 tests run, 6922 passed, 15 failed, 85 skipped. Included the new route-disable tests and passing terminal smoke coverage; remaining failures were pre-existing and unrelated to the route-disable changes. |
 | `cargo nextest run -p warp_completer --features v2` | PASS | Completed in 1m54s build time plus nextest runtime. Summary: 116 tests run, 116 passed, 4 skipped. |
 | `cargo test --doc` | PASS | Doc tests passed; observed examples included 36 `command` doctests, 4 `warp` doctests, and 3 `warp_util` doctests passing, with expected ignored doctests in some crates. |
+| `target/debug/deps/warp-02c43003b21f62f6 --exact settings_view::tests::warp_removal_disabled_sections_are_identified settings_view::tests::warp_removal_normalizes_removed_routes_to_supported_sections workspace::view::tests::removed_product_surfaces_are_absent_from_left_panel_views workspace::view::tests::terminal_workspace_starts_with_terminal_session` | PASS | New focused safety tests for removed settings routes and terminal startup all passed. |
+| `cargo nextest run -p warp_terminal` | PASS | Summary: 84 passed, 2 skipped. |
+| `cargo run -p integration --bin integration -- test_single_command` | PASS | Terminal command-execution smoke test passed. |
+| `cargo run -p integration --bin integration -- test_terminal_announces_capabilities_to_shell` | PASS | Terminal shell-init/capabilities smoke test passed. |
+| `cargo run -p integration --bin integration -- test_add_and_close_session` | PASS | Terminal session lifecycle smoke test passed. |
+| `cargo run -p integration --bin integration -- test_session_restoration` | PASS | Terminal session restoration smoke test passed. |
+
+## Changed Routes / Surfaces
+
+The following product surfaces are now disabled at shared navigation and route-selection layers, while terminal startup and terminal pane creation remain unchanged:
+
+- Settings surfaces redirected away from removed pages:
+  - `Teams`
+  - `Referrals`
+  - `WarpDrive`
+  - `WarpAgent`
+  - `AgentProfiles`
+  - `AgentMCPServers`
+  - `Knowledge`
+  - `ThirdPartyCLIAgents`
+  - `CodeIndexing`
+  - `CloudEnvironments`
+  - `OzCloudAPIKeys`
+- Redirect behavior:
+  - removed settings sections normalize to `SettingsSection::Account`
+  - internal `SettingsSection::Code` now normalizes to `SettingsSection::EditorAndCodeReview`
+- Hidden navigation/menu surfaces:
+  - settings nav entries for the removed sections above
+  - macOS app menu `AI`
+  - macOS app menu `Drive`
+  - left-panel `Warp Drive`
+  - left-panel agent conversation list
+  - workspace bindings that open removed settings sections or Warp Drive are disabled
+- Sign-in / sign-up UI entry actions are now no-ops at the shared workspace handlers, without removing low-level auth/session primitives.
+- Broken-link / route-reference search:
+  - route/action symbols for removed surfaces still exist in implementation files, but shared route selection and action handlers now normalize or no-op them before they can surface in the UI
+  - terminal startup, terminal pane creation, and terminal session restoration paths were left unchanged
 
 ### Existing Failure Details
 
@@ -262,9 +299,11 @@ The commands below were run without intentionally changing application behavior.
   - `warp util::git::tests::detached_tag_display_returns_short_sha`
 - Observed behavior:
   - nextest had already passed a large set of `shell_integration_tests::*` and `ui_tests::*`
-  - final summary was `6933 tests run: 6918 passed, 15 failed, 85 skipped`
+  - `integration::integration ui_tests::test_restore_snapshot_with_settings_page` now passes after updating the expectation to the new normalized settings route
+  - final summary was `6937 tests run: 6922 passed, 15 failed, 85 skipped`
 - Additional terminal-specific evidence:
   - passing terminal/e2e tests included `test_terminal_announces_capabilities_to_shell`, `test_tmux_ssh_into_bash`, `test_tmux_ssh_into_zsh`, `test_remote_server_connect_bash`, `test_remote_server_connect_zsh`, and multiple pane / block / terminal UI tests.
+  - focused terminal smoke tests also passed: `test_single_command`, `test_terminal_announces_capabilities_to_shell`, `test_add_and_close_session`, and `test_session_restoration`.
 
 ## Notes For Future Warp-Removal Work
 

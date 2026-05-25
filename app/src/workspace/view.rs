@@ -278,6 +278,7 @@ use crate::pane_group::{
     TabBarHoverIndex, TerminalPaneId,
 };
 use crate::persistence::ModelEvent;
+use crate::product_surfaces;
 use crate::projects::ProjectManagementModel;
 use crate::prompt::editor_modal::{
     EditorModal as PromptEditorModal, EditorModalEvent as PromptEditorModalEvent,
@@ -7284,6 +7285,8 @@ impl Workspace {
         search_query: Option<&str>,
         ctx: &mut ViewContext<Self>,
     ) {
+        let page = SettingsSection::normalize_for_warp_removal(page);
+
         // Ensure there is only one settings pane per window
         let settings_pane_manager = SettingsPaneManager::handle(ctx);
         if let Some(locator) = settings_pane_manager.as_ref(ctx).find_pane(ctx.window_id()) {
@@ -13131,13 +13134,15 @@ impl Workspace {
                 self.open_network_log_pane(ctx);
             }
             SettingsViewEvent::OpenWarpDrive => {
-                self.close_all_overlays(ctx);
-                self.open_or_toggle_warp_drive(
-                    false, /* toggle */
-                    false, /* explicit_user_action */
-                    ctx,
-                );
-                ctx.notify();
+                if product_surfaces::warp_drive_surface_enabled() {
+                    self.close_all_overlays(ctx);
+                    self.open_or_toggle_warp_drive(
+                        false, /* toggle */
+                        false, /* explicit_user_action */
+                        ctx,
+                    );
+                    ctx.notify();
+                }
             }
             SettingsViewEvent::SignupAnonymousUser => {
                 self.initiate_user_signup(AnonymousUserSignupEntrypoint::SignUpButton, ctx);
@@ -16651,7 +16656,11 @@ impl Workspace {
         ctx: &mut ViewContext<Self>,
     ) {
         self.close_all_overlays(ctx);
-        self.open_settings_pane(section, None, ctx);
+        self.open_settings_pane(
+            SettingsSection::normalize_for_warp_removal(section),
+            None,
+            ctx,
+        );
     }
 
     fn show_settings_with_search(
@@ -16661,7 +16670,11 @@ impl Workspace {
         ctx: &mut ViewContext<Self>,
     ) {
         self.close_all_overlays(ctx);
-        self.open_settings_pane(section, Some(search_query), ctx);
+        self.open_settings_pane(
+            SettingsSection::normalize_for_warp_removal(section),
+            Some(search_query),
+            ctx,
+        );
     }
 
     /// Opens the team settings page and fills the invite field with the given email. This is used when linking directing to
@@ -16673,9 +16686,11 @@ impl Workspace {
     ) {
         self.show_settings_with_section(Some(SettingsSection::Teams), ctx);
 
-        self.settings_pane.update(ctx, |view, ctx| {
-            view.open_teams_page_email_invite(email_invite, ctx);
-        });
+        if !SettingsSection::Teams.is_disabled_for_warp_removal() {
+            self.settings_pane.update(ctx, |view, ctx| {
+                view.open_teams_page_email_invite(email_invite, ctx);
+            });
+        }
     }
 
     /// Opens the MCP servers settings page, optionally triggering auto-install of a gallery MCP.
@@ -20825,6 +20840,10 @@ impl Workspace {
         entrypoint: AnonymousUserSignupEntrypoint,
         ctx: &mut ViewContext<Self>,
     ) {
+        if !product_surfaces::sign_up_ui_enabled() {
+            return;
+        }
+
         if self.auth_state.is_user_anonymous().unwrap_or_default() {
             // User has a Firebase anonymous account — use the linking flow.
             AuthManager::handle(ctx).update(ctx, |auth_manager, ctx| {
@@ -20844,6 +20863,10 @@ impl Workspace {
     }
 
     fn redirect_to_sign_in(&mut self) {
+        if !product_surfaces::sign_in_ui_enabled() {
+            return;
+        }
+
         #[cfg(target_family = "wasm")]
         if let Some(current_url) = parse_current_url() {
             update_browser_url(
@@ -20935,7 +20958,8 @@ impl Workspace {
     /// Computes the list of available left panel views based on current AI settings and feature flags.
     fn compute_left_panel_views(ctx: &AppContext) -> Vec<ToolPanelView> {
         let mut views = vec![];
-        if FeatureFlag::AgentViewConversationListView.is_enabled()
+        if product_surfaces::agents_surface_enabled()
+            && FeatureFlag::AgentViewConversationListView.is_enabled()
             && AISettings::as_ref(ctx).is_any_ai_enabled(ctx)
             && *AISettings::as_ref(ctx).show_conversation_history
         {
@@ -20953,7 +20977,9 @@ impl Workspace {
                 entry_focus: GlobalSearchEntryFocus::Results,
             });
         }
-        if WarpDriveSettings::is_warp_drive_enabled(ctx) {
+        if product_surfaces::warp_drive_surface_enabled()
+            && WarpDriveSettings::is_warp_drive_enabled(ctx)
+        {
             views.push(ToolPanelView::WarpDrive);
         }
         views
@@ -21650,7 +21676,9 @@ impl TypedActionView for Workspace {
                 self.current_workspace_state.is_tab_being_dragged = true;
             }
             OpenWarpDrive => {
-                if WarpDriveSettings::is_warp_drive_enabled(ctx) {
+                if product_surfaces::warp_drive_surface_enabled()
+                    && WarpDriveSettings::is_warp_drive_enabled(ctx)
+                {
                     self.open_left_panel_view(&LeftPanelAction::WarpDrive, ctx);
                 }
             }
@@ -22176,10 +22204,14 @@ impl TypedActionView for Workspace {
                 send_telemetry_from_ctx!(TelemetryEvent::InitiateReauth, ctx);
             }
             SignupAnonymousUser => {
-                self.initiate_user_signup(AnonymousUserSignupEntrypoint::SignUpButton, ctx);
+                if product_surfaces::sign_up_ui_enabled() {
+                    self.initiate_user_signup(AnonymousUserSignupEntrypoint::SignUpButton, ctx);
+                }
             }
             SignInAnonymousWebUser => {
-                self.redirect_to_sign_in();
+                if product_surfaces::sign_in_ui_enabled() {
+                    self.redirect_to_sign_in();
+                }
             }
             HandleConflictingWorkflow(workflow_id) => {
                 self.toast_stack.update(ctx, |view, ctx| {
@@ -22956,7 +22988,9 @@ impl TypedActionView for Workspace {
                 }
             }
             ToggleWarpDrive => {
-                if WarpDriveSettings::is_warp_drive_enabled(ctx) {
+                if product_surfaces::warp_drive_surface_enabled()
+                    && WarpDriveSettings::is_warp_drive_enabled(ctx)
+                {
                     let is_showing =
                         self.left_panel_view.as_ref(ctx).active_view() == ToolPanelView::WarpDrive;
                     self.toggle_left_panel_view(&LeftPanelAction::WarpDrive, is_showing, ctx);
@@ -23005,7 +23039,9 @@ impl TypedActionView for Workspace {
                 }
             }
             ToggleConversationListView => {
-                if FeatureFlag::AgentViewConversationListView.is_enabled() {
+                if product_surfaces::agents_surface_enabled()
+                    && FeatureFlag::AgentViewConversationListView.is_enabled()
+                {
                     let is_showing = self.left_panel_view.as_ref(ctx).active_view()
                         == ToolPanelView::ConversationListView;
                     self.toggle_left_panel_view(

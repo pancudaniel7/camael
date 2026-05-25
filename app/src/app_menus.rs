@@ -22,6 +22,7 @@ use crate::ai::persisted_workspace::PersistedWorkspace;
 use crate::auth::AuthStateProvider;
 use crate::default_terminal::DefaultTerminal;
 use crate::features::{runtime_flags_menu_items, FeatureFlag};
+use crate::product_surfaces;
 use crate::root_view::OpenLaunchConfigArg;
 use crate::server::telemetry::LaunchConfigUiLocation;
 use crate::settings::{
@@ -62,18 +63,26 @@ const MAX_RECENT_REPOS_IN_MENU: usize = 10;
 
 /// Creates the root app menu bar
 pub fn menu_bar(ctx: &mut AppContext) -> MenuBar {
-    MenuBar::new(vec![
+    let mut menus = vec![
         make_new_app_menu(ctx),
         make_new_file_menu(ctx),
         make_new_edit_menu(ctx),
         make_new_view_menu(ctx),
         make_new_tab_menu(ctx),
         make_new_blocks_menu(ctx),
-        make_new_ai_menu(ctx),
-        make_new_drive_menu(ctx),
-        make_new_window_menu(),
-        make_new_help_menu(),
-    ])
+    ];
+
+    if product_surfaces::agents_surface_enabled() {
+        menus.push(make_new_ai_menu(ctx));
+    }
+    if product_surfaces::warp_drive_surface_enabled() {
+        menus.push(make_new_drive_menu(ctx));
+    }
+
+    menus.push(make_new_window_menu());
+    menus.push(make_new_help_menu());
+
+    MenuBar::new(menus)
 }
 
 // Creates the app dock menu
@@ -376,13 +385,10 @@ fn make_new_edit_menu(ctx: &AppContext) -> Menu {
 
 fn make_new_view_menu(ctx: &AppContext) -> Menu {
     let mut items = vec![
-        updateable_custom_item_without_checkmark(CustomAction::ToggleWarpDrive, ctx),
-        MenuItem::Separator,
         updateable_custom_item_without_checkmark(CustomAction::CommandPalette, ctx),
         updateable_custom_item_without_checkmark(CustomAction::NavigationPalette, ctx),
         updateable_custom_item_without_checkmark(CustomAction::LaunchConfigPalette, ctx),
         updateable_custom_item_without_checkmark(CustomAction::FilesPalette, ctx),
-        updateable_custom_item_without_checkmark(CustomAction::ToggleConversationListView, ctx),
         updateable_custom_item_without_checkmark(CustomAction::ToggleProjectExplorer, ctx),
         updateable_custom_item_without_checkmark(CustomAction::ToggleGlobalSearch, ctx),
         MenuItem::Separator,
@@ -437,6 +443,20 @@ fn make_new_view_menu(ctx: &AppContext) -> Menu {
             None,
         )),
     ];
+
+    if product_surfaces::warp_drive_surface_enabled() {
+        items.insert(
+            0,
+            updateable_custom_item_without_checkmark(CustomAction::ToggleWarpDrive, ctx),
+        );
+        items.insert(1, MenuItem::Separator);
+    }
+    if product_surfaces::agents_surface_enabled() {
+        items.insert(
+            4,
+            updateable_custom_item_without_checkmark(CustomAction::ToggleConversationListView, ctx),
+        );
+    }
 
     let is_compact_mode = matches!(
         TerminalSettings::handle(ctx)
