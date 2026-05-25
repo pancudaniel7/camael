@@ -283,6 +283,32 @@ impl Display for SettingsSection {
 }
 
 impl SettingsSection {
+    /// Returns true when this section belongs to a Warp product surface that
+    /// is intentionally disabled during the terminal-only removal phase.
+    pub fn is_disabled_for_warp_removal(&self) -> bool {
+        matches!(
+            self,
+            Self::AI
+                | Self::Teams
+                | Self::Referrals
+                | Self::WarpDrive
+                | Self::CodeIndexing
+                | Self::CloudEnvironments
+                | Self::OzCloudAPIKeys
+        ) || self.is_ai_subpage()
+    }
+
+    /// Normalizes navigation targets so removed product surfaces redirect to
+    /// a still-supported settings destination instead of opening disabled UI.
+    pub fn normalize_for_warp_removal(section: Option<Self>) -> Option<Self> {
+        section.map(|section| match section {
+            Self::AI => Self::Account,
+            Self::Code => Self::EditorAndCodeReview,
+            disabled if disabled.is_disabled_for_warp_removal() => Self::Account,
+            other => other,
+        })
+    }
+
     /// Returns true if this section is a subpage under any umbrella.
     pub fn is_subpage(&self) -> bool {
         self.is_ai_subpage() || self.is_code_subpage() || self.is_cloud_platform_subpage()
@@ -1253,10 +1279,22 @@ impl SettingsView {
             SettingsNavItem::Page(SettingsSection::About),
         ];
 
+        for item in &mut nav_items {
+            if let SettingsNavItem::Umbrella(umbrella) = item {
+                umbrella
+                    .subpages
+                    .retain(|section| !section.is_disabled_for_warp_removal());
+            }
+        }
+        nav_items.retain(|item| match item {
+            SettingsNavItem::Page(section) => !section.is_disabled_for_warp_removal(),
+            SettingsNavItem::Umbrella(umbrella) => !umbrella.subpages.is_empty(),
+        });
+
         // Resolve the initial page: map internal backing-page sections to their default subpage.
-        let initial_page = match page {
+        let initial_page = match SettingsSection::normalize_for_warp_removal(page) {
             Some(SettingsSection::AI) => SettingsSection::WarpAgent,
-            Some(SettingsSection::Code) => SettingsSection::CodeIndexing,
+            Some(SettingsSection::Code) => SettingsSection::EditorAndCodeReview,
             Some(section) if section.is_subpage() => section,
             other => other.unwrap_or_default(),
         };
@@ -1890,11 +1928,12 @@ impl SettingsView {
     ) {
         // Map internal backing-page sections to their default subpage.
         // External callers should use subpage variants directly.
-        let section = match section {
-            SettingsSection::AI => SettingsSection::WarpAgent,
-            SettingsSection::Code => SettingsSection::CodeIndexing,
-            other => other,
-        };
+        let section =
+            match SettingsSection::normalize_for_warp_removal(Some(section)).unwrap_or_default() {
+                SettingsSection::AI => SettingsSection::WarpAgent,
+                SettingsSection::Code => SettingsSection::EditorAndCodeReview,
+                other => other,
+            };
 
         // For AI subpages, the backing page is the AI page. Check it exists.
         let page_section = section.parent_page_section();

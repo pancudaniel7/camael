@@ -36,6 +36,70 @@ fn cloud_platform_subpages_are_identified() {
 }
 
 #[test]
+fn warp_removal_disabled_sections_are_identified() {
+    for section in [
+        SettingsSection::AI,
+        SettingsSection::WarpAgent,
+        SettingsSection::AgentProfiles,
+        SettingsSection::AgentMCPServers,
+        SettingsSection::Knowledge,
+        SettingsSection::ThirdPartyCLIAgents,
+        SettingsSection::Teams,
+        SettingsSection::Referrals,
+        SettingsSection::WarpDrive,
+        SettingsSection::CodeIndexing,
+        SettingsSection::CloudEnvironments,
+        SettingsSection::OzCloudAPIKeys,
+    ] {
+        assert!(
+            section.is_disabled_for_warp_removal(),
+            "{section:?} should be disabled during Warp surface removal"
+        );
+    }
+
+    for section in [
+        SettingsSection::Account,
+        SettingsSection::BillingAndUsage,
+        SettingsSection::EditorAndCodeReview,
+        SettingsSection::MCPServers,
+        SettingsSection::Privacy,
+    ] {
+        assert!(
+            !section.is_disabled_for_warp_removal(),
+            "{section:?} should remain available"
+        );
+    }
+}
+
+#[test]
+fn warp_removal_normalizes_removed_routes_to_supported_sections() {
+    assert_eq!(
+        SettingsSection::normalize_for_warp_removal(Some(SettingsSection::Teams)),
+        Some(SettingsSection::Account)
+    );
+    assert_eq!(
+        SettingsSection::normalize_for_warp_removal(Some(SettingsSection::WarpAgent)),
+        Some(SettingsSection::Account)
+    );
+    assert_eq!(
+        SettingsSection::normalize_for_warp_removal(Some(SettingsSection::CodeIndexing)),
+        Some(SettingsSection::Account)
+    );
+    assert_eq!(
+        SettingsSection::normalize_for_warp_removal(Some(SettingsSection::CloudEnvironments)),
+        Some(SettingsSection::Account)
+    );
+    assert_eq!(
+        SettingsSection::normalize_for_warp_removal(Some(SettingsSection::Code)),
+        Some(SettingsSection::EditorAndCodeReview)
+    );
+    assert_eq!(
+        SettingsSection::normalize_for_warp_removal(Some(SettingsSection::Privacy)),
+        Some(SettingsSection::Privacy)
+    );
+}
+
+#[test]
 fn is_subpage_covers_all_umbrella_types() {
     // All subpages under any umbrella should return true.
     for section in SettingsSection::ai_subpages() {
