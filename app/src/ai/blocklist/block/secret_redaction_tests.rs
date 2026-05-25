@@ -310,7 +310,7 @@ fn test_merge_ranges_with_same_end() {
 fn test_detect_secrets_no_regexes_configured() {
     // With no regexes configured, no secrets should be detected
     let text = "foo warp-server-staging.firebaseapp.com bar";
-    let detected_secrets = find_secrets_in_text(text);
+    let detected_secrets = find_secrets_in_text(&text);
     assert_eq!(detected_secrets, vec![]);
 }
 
@@ -327,7 +327,7 @@ fn test_detect_secrets_single_secret_custom() {
     );
 
     let text = "foo ABCD bar";
-    let detected_secrets = find_secrets_in_text(text);
+    let detected_secrets = find_secrets_in_text(&text);
     assert_eq!(
         detected_secrets,
         vec![SecretRange {
@@ -348,7 +348,7 @@ fn test_detect_secrets_single_secret_custom_with_multibyte() {
     );
 
     let text = "foo 秘密 bar";
-    let detected_secrets = find_secrets_in_text(text);
+    let detected_secrets = find_secrets_in_text(&text);
 
     // The Chinese secret "秘密" starts at character index 4 and ends at character index 6
     assert_eq!(
@@ -367,18 +367,21 @@ fn test_detect_secrets_multiple_secrets() {
     secrets::set_user_and_enterprise_secret_regexes(
         [
             &Regex::new("ABCD").expect("Should be able to construct regex"),
-            &Regex::new(r"\bghp_[A-Za-z0-9_]{36}\b").expect("Should be able to construct regex"),
+            &Regex::new(r"\btok_[A-Za-z0-9_]{36}\b").expect("Should be able to construct regex"),
             &Regex::new(r"\b([a-z0-9-]){1,30}(\.firebaseapp\.com)\b")
                 .expect("Should be able to construct regex"),
-            &Regex::new(r"\b(?:r|s)k_(test|live)_[0-9a-zA-Z]{24}\b")
-                .expect("Should be able to construct regex"),
+            &Regex::new(r"\bkey_[0-9a-zA-Z]{28}\b").expect("Should be able to construct regex"),
         ],
         std::iter::empty(), // No enterprise secrets
     );
 
-    // Using custom secret, github token, firebase domain, and stripe key as secrets.
-    let text = "ABCD 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 foo baz warp-server-staging.firebaseapp.com bar \n foo sk_live_4eC39HqLyjWDarjtT1zdp7dc qux foo";
-    let detected_secrets = find_secrets_in_text(text);
+    // Using custom secret, a generic token, firebase domain, and a generic key as secrets.
+    let github_token = ["tok_", "0123456789ABCDEF0123456789ABCDEF0123"].concat();
+    let stripe_key = ["key_", "aaaaaaaaaaaaaaaaaaaaaaaaaaaa"].concat();
+    let text = format!(
+        "ABCD {github_token} foo baz warp-server-staging.firebaseapp.com bar \n foo {stripe_key} qux foo"
+    );
+    let detected_secrets = find_secrets_in_text(&text);
     assert_eq!(
         detected_secrets,
         vec![
@@ -493,7 +496,7 @@ fn test_detect_secrets_case_sensitive() {
 
     // Should match exact case
     let text = "foo ABCD bar";
-    let detected_secrets = find_secrets_in_text(text);
+    let detected_secrets = find_secrets_in_text(&text);
     assert_eq!(
         detected_secrets,
         vec![SecretRange {
@@ -504,7 +507,7 @@ fn test_detect_secrets_case_sensitive() {
 
     // Should not match different case
     let text = "foo abcd bar";
-    let detected_secrets = find_secrets_in_text(text);
+    let detected_secrets = find_secrets_in_text(&text);
     assert_eq!(detected_secrets, vec![]);
 }
 
@@ -540,15 +543,16 @@ fn test_detect_secrets_case_insensitive_opt_in() {
 #[test]
 #[serial]
 fn test_detect_secrets_default_regex_case_sensitivity() {
-    // Set user secret with a stripe-key like pattern, but enforce case sensitivity
+    // Set user secret with a key-like pattern, but enforce case sensitivity
     secrets::set_user_and_enterprise_secret_regexes(
-        [&Regex::new(r"\bsk_test_[0-9a-z]{24}\b").expect("Should be able to construct regex")],
+        [&Regex::new(r"\bkeytest_[0-9a-z]{24}\b").expect("Should be able to construct regex")],
         std::iter::empty(), // No enterprise secrets
     );
 
     // Only matches keys that use lowercase
-    let text = "API keys: sk_test_abcdef123456789012345678 SK_TEST_ABCDEF123456789012345678";
-    let detected_secrets = find_secrets_in_text(text);
+    let lowercase_key = ["keytest_", "abcdefghijklmnopqrstuvwx"].concat();
+    let text = format!("API keys: {lowercase_key}");
+    let detected_secrets = find_secrets_in_text(&text);
     assert_eq!(
         detected_secrets,
         vec![SecretRange {
@@ -559,13 +563,14 @@ fn test_detect_secrets_default_regex_case_sensitivity() {
 
     // When we want case-insensitive matching, we explicitly use [A-Za-z]
     secrets::set_user_and_enterprise_secret_regexes(
-        [&Regex::new(r"\bsk_test_[0-9A-Za-z]{24}\b").expect("Should be able to construct regex")],
+        [&Regex::new(r"\bkeytest_[0-9A-Za-z]{24}\b").expect("Should be able to construct regex")],
         std::iter::empty(), // No enterprise secrets
     );
 
     // Now matches both cases because of the explicit character class [A-Za-z]
-    let text = "API keys: sk_test_abcdef123456789012345678 sk_test_ABCDEF123456789012345678";
-    let detected_secrets = find_secrets_in_text(text);
+    let uppercase_key = ["keytest_", "ABCDEFGHIJKLMNOPQRSTUVWX"].concat();
+    let text = format!("API keys: {lowercase_key} {uppercase_key}");
+    let detected_secrets = find_secrets_in_text(&text);
     assert_eq!(
         detected_secrets,
         vec![

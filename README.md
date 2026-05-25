@@ -1,5 +1,9 @@
 &nbsp;
 <p align="center">
+  <img src="app/assets/async/png/camael.png" alt="Camael" width="800" />
+</p>
+
+<p align="center">
   <a href="https://www.camael.dev"><img height="20" alt="Built with Warp" src="https://raw.githubusercontent.com/warpdotdev/brand-assets/main/Github/Built-With-Warp-Export@2x.png" /></a>
   &nbsp;
   <a href="https://oz.camael.dev"><img height="20" alt="Powered by Oz" src="https://raw.githubusercontent.com/warpdotdev/brand-assets/main/Github/Powered-By-Oz-Export@2x.png" /></a>

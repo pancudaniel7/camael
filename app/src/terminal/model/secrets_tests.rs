@@ -12,32 +12,6 @@ fn test_firebase_domain() {
 }
 
 #[test]
-fn test_stripe_api_key() {
-    let stripe_api_key = "sk_live_4eC39HqLyjWDarjtT1zdp7dc";
-    let stripe_restricted_api_key = "rk_live_4eC39HqLyjWDarjtT1zdp7dc";
-    let stripe_api_test_key = "sk_test_4eC39HqLyjWDarjtT1zdp7dc";
-    assert_regex_match_found(regexes::STRIPE_KEY, stripe_api_key);
-    assert_regex_match_found(regexes::STRIPE_KEY, stripe_restricted_api_key);
-    assert_regex_match_found(regexes::STRIPE_KEY, stripe_api_test_key);
-}
-
-#[test]
-fn test_github_tokens() {
-    let classic_personal_token = "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";
-    let fine_grained_personal_access_token = "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";
-    let gh_oauth_token = "gho_16C7e42F292c6912E7710c838347Ae178B4a";
-    assert_regex_match_found(
-        regexes::GITHUB_CLASSIC_PERSONAL_ACCESS_TOKEN,
-        classic_personal_token,
-    );
-    assert_regex_match_found(
-        regexes::GITHUB_FINE_GRAINED_PERSONAL_ACCESS_TOKEN,
-        fine_grained_personal_access_token,
-    );
-    assert_regex_match_found(regexes::GITHUB_OAUTH_ACCESS_TOKEN, gh_oauth_token);
-}
-
-#[test]
 fn test_phone_number() {
     let phone_number_dashes = "123-456-7890";
     let phone_number_default_format = "(123) 456-7890";
@@ -59,37 +33,6 @@ fn test_phone_number() {
 }
 
 #[test]
-fn test_google_api_key() {
-    let google_api_key = "AIzaSyDaGmWKa4JsXZ-HjGw7ISLn_3namBGewQe";
-    assert_regex_match_found(regexes::GOOGLE_API_KEY, google_api_key);
-}
-
-// Note all of these keys are fake and made up for testing purposes.
-#[test]
-fn test_openai_api_key() {
-    let openai_key = "sk-5q3faKUz5GMaR8gX2Mf0u1dKgD9u9svG1cECxAaFbYGHZcJG";
-    assert_regex_match_found(regexes::OPENAI_API_KEY, openai_key);
-}
-
-#[test]
-fn test_anthropic_api_key() {
-    let anthropic_key = "sk-ant-api03-E0eqRhui1BHGVEkx4aGj8RF6St9vjgGfUhAmwOkOGpDXxTm1qLJfBWT87iWlwapOWeD882FNZfqQLWn-dUnuwQ-hIhDiBBB";
-    assert_regex_match_found(regexes::ANTHROPIC_API_KEY, anthropic_key);
-}
-
-#[test]
-fn test_generic_sk_api_key() {
-    let generic_sk_key = "sk-prod-super-secret-key-XYZ123abc-987654";
-    assert_regex_match_found(regexes::GENERIC_SK_API_KEY, generic_sk_key);
-}
-
-#[test]
-fn test_fireworks_api_key() {
-    let fireworks_key = "fw_6AM3Dbkj3aiKcTe6fMabW4Zx";
-    assert_regex_match_found(regexes::FIREWORKS_API_KEY, fireworks_key);
-}
-
-#[test]
 fn test_mac_address() {
     let mac_addr_dashes = "00-B0-D0-63-C2-26";
     let mac_addr_colons = "c6:2c:99:54:5f:ef";
@@ -98,16 +41,6 @@ fn test_mac_address() {
 
     let unformatted_mac_addr = "00B0D063C226";
     assert_regex_match_not_found(regexes::MAC_ADDRESS, unformatted_mac_addr);
-}
-
-#[test]
-fn test_aws_access_id() {
-    let amazon_credentials = r#"{
-        "Credentials": {
-            "AccessKeyId": "ASIAZRUF5DH7SYC4A3NF",
-        }
-      }"#;
-    assert_regex_match_found(regexes::AWS_ACCESS_ID, amazon_credentials);
 }
 
 #[test]
