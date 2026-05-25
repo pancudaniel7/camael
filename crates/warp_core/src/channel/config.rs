@@ -46,7 +46,9 @@ impl WarpServerConfig {
             server_root_url: "https://app.warp.dev".into(),
             rtc_server_url: "wss://rtc.app.warp.dev/graphql/v2".into(),
             session_sharing_server_url: Some("wss://sessions.app.warp.dev".into()),
-            firebase_auth_api_key: "AIzaSyBdy3O3S9hrdayLJxJ7mriBR4qgUaUygAs".into(),
+            firebase_auth_api_key: std::env::var("WARP_FIREBASE_AUTH_API_KEY")
+                .unwrap_or_default()
+                .into(),
         }
     }
 }

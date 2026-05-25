@@ -200,3 +200,4 @@ warp.pty.recording
 frame_capture_*.png
 
 app/src/persistence/schema.rs.orig
+.history/
