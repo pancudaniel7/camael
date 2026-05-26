@@ -2812,10 +2812,12 @@ impl RootView {
     pub fn open_team_settings_page(&mut self, _: &(), ctx: &mut ViewContext<Self>) -> bool {
         let window_id = ctx.window_id();
         if let AuthOnboardingState::Terminal(handle) = &self.auth_onboarding_state {
+            let section = SettingsSection::normalize_for_warp_removal(Some(SettingsSection::Teams))
+                .unwrap_or(SettingsSection::Account);
             ctx.dispatch_typed_action_for_view(
                 window_id,
                 handle.id(),
-                &WorkspaceAction::ShowSettingsPage(SettingsSection::Teams),
+                &WorkspaceAction::ShowSettingsPage(section),
             );
             ctx.windows().show_window_and_focus_app(window_id);
         } else {
