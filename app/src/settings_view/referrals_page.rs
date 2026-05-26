@@ -1,6 +1,3 @@
-use std::sync::Arc;
-
-use crate::server::server_api::referral::ReferralsClient;
 use crate::settings_view::settings_page::{MatchData, PageType, SettingsPageMeta, SettingsPageViewHandle};
 use crate::view_components::ToastFlavor;
 use warpui::elements::{Element, Empty};
@@ -28,7 +25,7 @@ pub struct ReferralsPageView {
 }
 
 impl ReferralsPageView {
-    pub fn new(_referrals_client: Arc<dyn ReferralsClient>, _ctx: &mut ViewContext<Self>) -> Self {
+    pub fn new(_ctx: &mut ViewContext<Self>) -> Self {
         Self {
             page: PageType::new_uncategorized(vec![], None),
         }
