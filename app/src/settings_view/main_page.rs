@@ -774,18 +774,13 @@ impl SettingsWidget for EarnRewardsWidget {
             self.render_row(
                 appearance,
                 REFERRAL_CTA,
-                appearance
-                    .ui_builder()
-                    .link(
-                        "Refer a friend".into(),
-                        None,
-                        Some(Box::new(move |ctx| {
-                            ctx.dispatch_typed_action(WorkspaceAction::ShowReferralSettingsPage);
-                        })),
-                        self.refer_link_mouse_handle.clone(),
-                    )
+                Text::new_inline(
+                    "Refer a friend",
+                    appearance.ui_font_family(),
+                    REGULAR_TEXT_FONT_SIZE,
+                )
+                    .with_color(appearance.theme().active_ui_text_color().into())
                     .soft_wrap(false)
-                    .build()
                     .finish(),
             ),
         )
