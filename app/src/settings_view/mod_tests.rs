@@ -718,6 +718,45 @@ fn realistic_nav_items() -> Vec<SettingsNavItem> {
     ]
 }
 
+#[test]
+fn removed_product_surfaces_are_filtered_from_settings_nav() {
+    let mut nav_items = realistic_nav_items();
+
+    for item in &mut nav_items {
+        if let SettingsNavItem::Umbrella(umbrella) = item {
+            umbrella
+                .subpages
+                .retain(|section| !section.is_disabled_for_warp_removal());
+        }
+    }
+    nav_items.retain(|item| match item {
+        SettingsNavItem::Page(section) => !section.is_disabled_for_warp_removal(),
+        SettingsNavItem::Umbrella(umbrella) => !umbrella.subpages.is_empty(),
+    });
+
+    assert!(matches!(
+        nav_items.as_slice(),
+        [
+            SettingsNavItem::Page(SettingsSection::Account),
+            SettingsNavItem::Page(SettingsSection::BillingAndUsage),
+            SettingsNavItem::Umbrella(_),
+        ]
+    ));
+
+    let code_umbrella = nav_items
+        .iter()
+        .find_map(|item| match item {
+            SettingsNavItem::Umbrella(umbrella) if umbrella.label == "Code" => Some(umbrella),
+            _ => None,
+        })
+        .expect("Code umbrella should remain in settings nav");
+
+    assert_eq!(
+        code_umbrella.subpages,
+        vec![SettingsSection::EditorAndCodeReview]
+    );
+}
+
 /// Mutably flips an umbrella's `expanded` flag at `nav_index`.
 fn set_expanded(nav_items: &mut [SettingsNavItem], nav_index: usize, expanded: bool) {
     if let Some(SettingsNavItem::Umbrella(u)) = nav_items.get_mut(nav_index) {
