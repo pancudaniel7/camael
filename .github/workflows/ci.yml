@@ -84,6 +84,24 @@ jobs:
           RUNNER_TYPE='["ubuntu-latest-large"]'
           echo "value=$RUNNER_TYPE" >> $GITHUB_OUTPUT
 
+  banned-references:
+    name: Removed feature reference check
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    needs: params
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Check for removed feature references
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          chmod +x script/check_removed_feature_references
+          script/check_removed_feature_references
+
   tests:
     name: Run ${{ matrix.name }} tests
     timeout-minutes: 25
@@ -567,6 +585,49 @@ jobs:
         run: |
           diff -u old-schema.rs <(diesel print-schema --database-url="test.sqlite")
 
+      - name: Revert and rerun migrations
+        run: |
+          diesel migration revert --all --database-url="test.sqlite" --migration-dir="crates/persistence/migrations"
+          diesel migration run --database-url="test.sqlite" --migration-dir="crates/persistence/migrations"
+
+  terminal-smoke:
+    name: Terminal smoke tests
+    timeout-minutes: 20
+    runs-on: ubuntu-latest-large
+    needs: params
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - uses: ./.github/actions/prepare_environment
+        with:
+          target_os: linux
+          is_self_hosted: false
+          install_test_deps: true
+
+      - name: Install Shells
+        uses: ConorMacBride/install-package@3e7ad059e07782ee54fa35f827df52aae0626f30 # v1
+        with:
+          apt: zsh fish
+
+      - name: Capture shell paths
+        id: echo_shells_unix
+        shell: bash
+        run: |
+          ZSH_PATH="$(which zsh)"
+          echo "zsh_path=$ZSH_PATH" >> $GITHUB_OUTPUT
+
+      - name: Run terminal smoke suite
+        uses: coactions/setup-xvfb@b6b4fcfb9f5a895edadc3bc76318fae0ac17c8b3 # v1
+        with:
+          run: |
+            cargo run -p integration --bin integration -- test_single_command
+            cargo run -p integration --bin integration -- test_terminal_announces_capabilities_to_shell
+            cargo run -p integration --bin integration -- test_add_and_close_session
+            cargo run -p integration --bin integration -- test_session_restoration
+        env:
+          WARP_SHELL_PATH: ${{ steps.echo_shells_unix.outputs.zsh_path }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   lints:
     name: Formatting + Clippy (${{ matrix.name }})
     timeout-minutes: 20
@@ -804,8 +865,10 @@ jobs:
     if: ${{ !cancelled() && needs.params.result != 'skipped' }}
     needs:
       - params
+      - banned-references
       - database-migration
       - tests
+      - terminal-smoke
       - lints
       - wasm-lint
       - general-lint

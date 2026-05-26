@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+readonly -a BANNED_TERMS=(
+  "WarpDrive"
+  "ClaudePlatform"
+  "CodeBaseIndexing"
+  "Refferals"
+  "Referrals"
+  "SingIn"
+  "SingUp"
+)
+
+usage() {
+  cat <<'EOF'
+Usage:
+  script/check_removed_feature_references [git-diff-range]
+
+Checks newly added references to removed Warp product surfaces. The check is
+diff-based by default so that existing historical references still being
+removed in follow-up stages do not fail CI.
+
+Examples:
+  script/check_removed_feature_references
+  script/check_removed_feature_references origin/master...HEAD
+EOF
+}
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  usage
+  exit 0
+fi
+
+resolve_diff_range() {
+  if [[ $# -gt 0 ]]; then
+    printf '%s' "$1"
+    return
+  fi
+
+  if [[ -n "${BASE_SHA:-}" ]] && git rev-parse --verify --quiet "${BASE_SHA}^{commit}" >/dev/null; then
+    printf '%s...HEAD' "$BASE_SHA"
+    return
+  fi
+
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    printf ''
+    return
+  fi
+
+  if [[ -n "${GITHUB_BASE_REF:-}" ]] && git rev-parse --verify --quiet "origin/${GITHUB_BASE_REF}^{commit}" >/dev/null; then
+    local merge_base
+    merge_base="$(git merge-base "origin/${GITHUB_BASE_REF}" HEAD)"
+    printf '%s...HEAD' "$merge_base"
+    return
+  fi
+
+  if git rev-parse --verify --quiet HEAD~1 >/dev/null; then
+    printf 'HEAD~1...HEAD'
+    return
+  fi
+
+  printf ''
+}
+
+collect_added_lines() {
+  local diff_range="$1"
+  local git_diff_cmd=(
+    git diff
+    --no-color
+    --unified=0
+  )
+
+  if [[ -n "$diff_range" ]]; then
+    git_diff_cmd+=("$diff_range")
+  fi
+
+  git_diff_cmd+=(
+    --
+    .
+    ':(exclude)docs/removal/**'
+    ':(exclude)script/check_removed_feature_references'
+  )
+
+  "${git_diff_cmd[@]}" | awk '
+    /^\+\+\+ b\// {
+      current_file = substr($0, 7)
+      next
+    }
+    /^@@/ { next }
+    /^\+/ && $0 !~ /^\+\+\+/ {
+      print current_file ":" substr($0, 2)
+    }
+  '
+}
+
+readonly DIFF_RANGE="$(resolve_diff_range "${1:-}")"
+readonly ADDED_LINES="$(collect_added_lines "$DIFF_RANGE")"
+
+if [[ -z "$ADDED_LINES" ]]; then
+  echo "No added lines to scan for removed feature references."
+  exit 0
+fi
+
+matches_found=0
+
+for term in "${BANNED_TERMS[@]}"; do
+  term_matches="$(printf '%s\n' "$ADDED_LINES" | grep -n -F "$term" || true)"
+  if [[ -n "$term_matches" ]]; then
+    if [[ $matches_found -eq 0 ]]; then
+      echo "Found newly added references to removed feature surfaces:"
+    fi
+    matches_found=1
+    echo
+    echo "Term: $term"
+    printf '%s\n' "$term_matches"
+  fi
+done
+
+if [[ $matches_found -ne 0 ]]; then
+  echo
+  echo "If a match is intentional, remove the deleted surface dependency instead of reintroducing its name."
+  exit 1
+fi
+
+echo "No newly added references to removed feature surfaces were found."
