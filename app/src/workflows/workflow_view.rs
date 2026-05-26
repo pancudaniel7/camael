@@ -70,6 +70,7 @@ use crate::network::NetworkStatus;
 use crate::pane_group::focus_state::PaneFocusHandle;
 use crate::pane_group::pane::view;
 use crate::pane_group::{BackingView, PaneConfiguration, PaneEvent};
+use crate::product_surfaces;
 use crate::server::cloud_objects::update_manager::{
     FetchSingleObjectOption, ObjectOperation, OperationSuccessType, UpdateManager,
     UpdateManagerEvent,
@@ -2951,9 +2952,11 @@ impl View for WorkflowView {
                     self.breadcrumbs.clone(),
                     appearance,
                     |ctx, _, breadcrumb| {
-                        ctx.dispatch_typed_action(WorkflowAction::ViewInWarpDrive(
-                            breadcrumb.kind.into_item_id(),
-                        ));
+                        if product_surfaces::warp_drive_surface_enabled() {
+                            ctx.dispatch_typed_action(WorkflowAction::ViewInWarpDrive(
+                                breadcrumb.kind.into_item_id(),
+                            ));
+                        }
                     },
                 ))
                 .with_horizontal_margin(CORE_HORIZONATAL_MARGIN)
@@ -3182,29 +3185,6 @@ impl BackingView for WorkflowView {
 
     fn pane_header_overflow_menu_items(&self, ctx: &AppContext) -> Vec<MenuItem<WorkflowAction>> {
         let mut menu_items = Vec::new();
-
-        // Add "Copy Link" to menu
-        if let Some(link) = self.workflow_link(ctx) {
-            menu_items.push(
-                MenuItemFields::new("Copy link")
-                    .with_on_select_action(WorkflowAction::CopyLink(link))
-                    .with_icon(Icon::Link)
-                    .into_item(),
-            );
-        }
-
-        if self.can_open_on_desktop(ctx) {
-            if let Some(link) = self.workflow_link(ctx) {
-                if let Ok(url) = Url::parse(&link) {
-                    menu_items.push(
-                        MenuItemFields::new("Open on Desktop")
-                            .with_on_select_action(WorkflowAction::OpenLinkOnDesktop(url))
-                            .with_icon(Icon::Laptop)
-                            .into_item(),
-                    );
-                }
-            }
-        }
 
         let space = CloudViewModel::as_ref(ctx).object_space(&self.workflow_id.uid(), ctx);
 

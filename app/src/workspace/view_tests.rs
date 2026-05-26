@@ -51,7 +51,6 @@ use crate::pane_group::{Direction, PaneGroupAction, PaneId};
 use crate::pricing::PricingInfoModel;
 #[cfg(not(target_family = "wasm"))]
 use crate::remote_server::codebase_index_model::RemoteCodebaseIndexModel;
-use crate::resource_center::Tip;
 use crate::server::cloud_objects::listener::Listener;
 use crate::server::cloud_objects::update_manager::UpdateManager;
 use crate::server::experiments::ServerExperiments;
@@ -733,10 +732,6 @@ fn removed_product_surfaces_are_absent_from_left_panel_views() {
 
         app.read(|ctx| {
             let views = Workspace::compute_left_panel_views(ctx);
-            assert!(
-                !views.contains(&ToolPanelView::WarpDrive),
-                "Warp Drive should be removed from the left panel"
-            );
             assert!(
                 !views.contains(&ToolPanelView::ConversationListView),
                 "Agent conversations should be removed from the left panel"
@@ -1678,73 +1673,6 @@ fn test_terminal_model_isnt_leaked() {
             terminal_model.upgrade().is_none(),
             "The terminal model should not exist once the tab is closed."
         )
-    });
-}
-
-#[test]
-fn test_open_or_toggle_warp_drive() {
-    App::test((), |mut app| async move {
-        initialize_app(&mut app);
-
-        let workspace = mock_workspace(&mut app);
-        workspace.update(&mut app, |workspace, ctx| {
-            // First, unconditionally open Warp Drive as a system action. WD should be open and welcome tips should not have opening warp drive.
-            workspace.open_or_toggle_warp_drive(
-                false, /* toggle */
-                false, /* explicit_user_action */
-                ctx,
-            );
-            assert!(
-                workspace.current_workspace_state.is_warp_drive_open,
-                "Warp Drive should be open"
-            );
-            assert!(
-                !workspace
-                    .tips_completed
-                    .as_ref(ctx)
-                    .features_used
-                    .contains(&Tip::Action(TipAction::OpenWarpDrive)),
-                "Warp drive welcome tip should not be completed"
-            );
-
-            // Next, toggle warp drive as a user action. WD should be closed and tip should not be filled out.
-            workspace.open_or_toggle_warp_drive(
-                true, /* toggle */
-                true, /* explicit_user_action */
-                ctx,
-            );
-            assert!(
-                !workspace.current_workspace_state.is_warp_drive_open,
-                "Warp Drive should be closed"
-            );
-            assert!(
-                !workspace
-                    .tips_completed
-                    .as_ref(ctx)
-                    .features_used
-                    .contains(&Tip::Action(TipAction::OpenWarpDrive)),
-                "Warp drive welcome tip should not be completed"
-            );
-
-            // Finally, toggle warp drive again as a user action. WD should be open and tip filled out.
-            workspace.open_or_toggle_warp_drive(
-                true, /* toggle */
-                true, /* explicit_user_action */
-                ctx,
-            );
-            assert!(
-                workspace.current_workspace_state.is_warp_drive_open,
-                "Warp Drive should be open"
-            );
-            assert!(
-                workspace
-                    .tips_completed
-                    .as_ref(ctx)
-                    .features_used
-                    .contains(&Tip::Action(TipAction::OpenWarpDrive)),
-                "Warp drive welcome tip should not be completed"
-            );
-        });
     });
 }
 

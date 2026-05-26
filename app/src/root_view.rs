@@ -69,6 +69,7 @@ use crate::notebooks::manager::NotebookSource;
 use crate::pane_group::{NewTerminalOptions, PanesLayout};
 use crate::persistence::ModelEvent;
 use crate::pricing::{PricingInfoModel, PricingInfoModelEvent};
+use crate::product_surfaces;
 use crate::server::cloud_objects::update_manager::UpdateManager;
 use crate::server::experiments::is_free_user_no_ai_experiment_active;
 use crate::server::ids::SyncId;
@@ -1038,6 +1039,11 @@ fn open_linear_issue_work_in_new_window(args: &LinearIssueWork, ctx: &mut AppCon
 }
 
 fn open_warp_drive_object(arg: &OpenWarpDriveObjectArgs, ctx: &mut AppContext) {
+    if !product_surfaces::warp_drive_surface_enabled() {
+        log::info!("Ignoring removed Warp Drive object intent for {:?}", arg.object_type);
+        return;
+    }
+
     match arg.object_type {
         ObjectType::Notebook => open_new_workspace_with_notebook_open(
             SyncId::ServerId(arg.server_id),
@@ -2535,6 +2541,11 @@ impl RootView {
         arg: &OpenWarpDriveObjectArgs,
         ctx: &mut ViewContext<Self>,
     ) -> bool {
+        if !product_surfaces::warp_drive_surface_enabled() {
+            log::info!("Ignoring removed Warp Drive object intent for {:?}", arg.object_type);
+            return false;
+        }
+
         if let AuthOnboardingState::Terminal(handle) = &self.auth_onboarding_state {
             let cloud_model = CloudModel::as_ref(ctx);
 
@@ -2789,17 +2800,18 @@ impl RootView {
     /// Shows the user the settings view of their newly joined team
     /// within the app.
     pub fn handle_team_intent_link_action(&mut self, _: &(), ctx: &mut ViewContext<Self>) -> bool {
-        // Force-open warp drive.
         let window_id = ctx.window_id();
         if let AuthOnboardingState::Terminal(handle) = &self.auth_onboarding_state {
+            let section = SettingsSection::normalize_for_warp_removal(Some(SettingsSection::Teams))
+                .unwrap_or(SettingsSection::Account);
             ctx.dispatch_typed_action_for_view(
                 window_id,
                 handle.id(),
-                &WorkspaceAction::OpenWarpDrive,
+                &WorkspaceAction::ShowSettingsPage(section),
             );
             ctx.windows().show_window_and_focus_app(window_id);
         } else {
-            log::error!("Auth not complete before trying to open warp drive");
+            log::error!("Auth not complete before trying to open team settings page");
         }
 
         // Use the team tester model to notify relevant subscribers to refresh their data.

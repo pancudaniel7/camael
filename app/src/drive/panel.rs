@@ -30,7 +30,6 @@ use crate::notebooks::manager::NotebookSource;
 use crate::notebooks::CloudNotebook;
 use crate::server::cloud_objects::update_manager::{InitiatedBy, UpdateManager};
 use crate::server::ids::{ClientId, ServerId, SyncId};
-use crate::server::telemetry::SharingDialogSource;
 use crate::workflows::manager::WorkflowOpenSource;
 use crate::workflows::{CloudWorkflow, WorkflowViewMode};
 use crate::workspaces::user_workspaces::UserWorkspaces;
@@ -583,59 +582,11 @@ impl DrivePanel {
         ctx.emit(DrivePanelEvent::OpenMCPServerCollection);
     }
 
-    /// Recomputes and initializes the section states for the WD Index. This is needed after
-    /// we directly change anything about the state of the index (such as folders being open/closed).
-    ///
-    /// This should only be called if we immeidiately need to update and rely on the updated state.
-    pub fn initialize_drive_section_states(&mut self, ctx: &mut ViewContext<Self>) {
-        self.index_view.update(ctx, |index, ctx| {
-            index.initialize_section_states(ctx);
-        })
-    }
-
-    pub fn expand_section_for_drive_item_id(
-        &mut self,
-        item_id: WarpDriveItemId,
-        ctx: &mut ViewContext<Self>,
-    ) {
-        self.index_view.update(ctx, |index, ctx| {
-            index.expand_section_for_drive_item_id(item_id, ctx);
-        })
-    }
-
-    /// This functions scrolls the relevant Warp Drive item into view.
-    pub fn scroll_item_into_view(&mut self, item_id: WarpDriveItemId, ctx: &mut ViewContext<Self>) {
-        self.index_view.update(ctx, |index, ctx| {
-            index.scroll_item_into_view(item_id, ctx);
-        })
-    }
-
     /// This functions sets the index of a focused Warp Drive item.
     pub fn set_focused_index(&mut self, focused_index: Option<usize>, ctx: &mut ViewContext<Self>) {
         self.index_view.update(ctx, |index, ctx| {
             index.set_focused_index(focused_index, true, ctx);
         })
-    }
-
-    pub fn set_focused_item(&mut self, item_id: WarpDriveItemId, ctx: &mut ViewContext<Self>) {
-        self.index_view.update(ctx, |index, ctx| {
-            ctx.focus(&self.index_view);
-            index.set_focused_item(item_id, true, ctx);
-        })
-    }
-
-    pub fn open_object_sharing_settings(
-        &mut self,
-        object_id: CloudObjectTypeAndId,
-        invitee_email: Option<String>,
-        source: SharingDialogSource,
-        ctx: &mut ViewContext<Self>,
-    ) {
-        let warp_drive_item_id = WarpDriveItemId::Object(object_id);
-        self.index_view.update(ctx, |index, ctx| {
-            index.set_focused_item(warp_drive_item_id, true, ctx);
-            index.toggle_share_dialog(&warp_drive_item_id, invitee_email, source, ctx);
-        });
     }
 
     pub fn has_warp_drive_initialized_sections(
@@ -652,12 +603,6 @@ impl DrivePanel {
     ) {
         self.index_view.update(ctx, |index, ctx| {
             index.reset_focused_index_in_warp_drive(should_scroll, ctx);
-        })
-    }
-
-    pub fn reset_and_open_to_main_index(&mut self, ctx: &mut ViewContext<Self>) {
-        self.index_view.update(ctx, |index, ctx| {
-            index.reset_and_open_to_main_index(ctx);
         })
     }
 

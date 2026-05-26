@@ -21,14 +21,12 @@ pub struct OpenTeamsSettingsModalArgs {
 #[derive(Debug, Clone)]
 pub enum TeamsPageAction {
     NoOp,
-    OpenWarpDrive,
     ChangeInviteViewOption(TeamsInviteOption),
     OpenAdminPanel { team_uid: ServerId },
 }
 
 pub enum TeamsPageViewEvent {
     TeamsChanged,
-    OpenWarpDrive,
     ShowToast {
         message: String,
         flavor: ToastFlavor,
