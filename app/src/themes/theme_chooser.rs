@@ -172,15 +172,13 @@ fn theme_chooser_items(
     referral_theme_status: &ReferralThemeStatus,
     theme_config: &WarpThemeConfig,
 ) -> Vec<ThemeChooserItem> {
-    let sent_referral_theme_active = referral_theme_status.sent_referral_theme_active();
-    let received_referral_theme_active = referral_theme_status.received_referral_theme_active();
+    let _ = referral_theme_status;
 
     let mut theme_items: Vec<ThemeChooserItem> = theme_config
         .theme_items()
         .filter(|(key, _)| match key {
             // Only show the referral reward themes if they are active
-            ThemeKind::SentReferralReward => sent_referral_theme_active,
-            ThemeKind::ReceivedReferralReward => received_referral_theme_active,
+            ThemeKind::SentReferralReward | ThemeKind::ReceivedReferralReward => false,
             // All other themes should show up always
             _ => true,
         })

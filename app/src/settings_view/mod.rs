@@ -1168,9 +1168,7 @@ impl SettingsView {
             me.handle_privacy_page_event(event, ctx);
         });
 
-        let referrals_client = ServerApiProvider::as_ref(ctx).get_referrals_client();
-        let referrals_page_handle =
-            ctx.add_typed_action_view(|ctx| ReferralsPageView::new(referrals_client, ctx));
+        let referrals_page_handle = ctx.add_typed_action_view(ReferralsPageView::new);
         ctx.subscribe_to_view(&referrals_page_handle, |me, _, event, ctx| {
             me.handle_referrals_page_event(event, ctx);
         });

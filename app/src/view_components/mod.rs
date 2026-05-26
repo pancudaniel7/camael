@@ -20,7 +20,6 @@ mod warning_box;
 
 pub use agent_toast::*;
 pub use alert::Alert;
-pub use clickable_text_input::*;
 pub use compact_dropdown::{CompactDropdown, CompactDropdownEvent, CompactDropdownItem};
 pub use copyable_text_field::*;
 pub use dismissible_toast::*;

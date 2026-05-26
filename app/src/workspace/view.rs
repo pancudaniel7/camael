@@ -2637,12 +2637,6 @@ impl Workspace {
             me.handle_referral_theme_status_event(event, ctx);
         });
 
-        let referrals_client = ServerApiProvider::as_ref(ctx).get_referrals_client();
-        // On startup, check if the user has earned a referral theme by referring other users
-        referral_theme_status.update(ctx, |model, ctx| {
-            model.query_referral_status(referrals_client, ctx);
-        });
-
         let bindings_notifier = KeybindingChangedNotifier::handle(ctx);
         ctx.subscribe_to_model(&bindings_notifier, |me, _, event, ctx| {
             me.handle_keybinding_changed(event, ctx);
