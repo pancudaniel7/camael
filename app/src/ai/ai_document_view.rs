@@ -1298,27 +1298,9 @@ impl BackingView for AIDocumentView {
 
     fn pane_header_overflow_menu_items(
         &self,
-        ctx: &AppContext,
+        _ctx: &AppContext,
     ) -> Vec<MenuItem<Self::PaneHeaderOverflowMenuAction>> {
         let mut menu_items = vec![];
-
-        // Only show shareable link when the document is synced to Warp Drive
-        if let Some(link) =
-            AIDocumentModel::as_ref(ctx).get_document_warp_drive_object_link(&self.document_id, ctx)
-        {
-            menu_items.push(
-                MenuItemFields::new("Copy link")
-                    .with_on_select_action(AIDocumentAction::CopyLink(link))
-                    .with_icon(Icon::Link)
-                    .into_item(),
-            );
-            menu_items.push(
-                MenuItemFields::new("Show in Warp Drive")
-                    .with_on_select_action(AIDocumentAction::ShowInWarpDrive)
-                    .with_icon(Icon::WarpDrive)
-                    .into_item(),
-            );
-        }
 
         #[cfg(feature = "local_fs")]
         {

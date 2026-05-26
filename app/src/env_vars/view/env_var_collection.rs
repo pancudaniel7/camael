@@ -40,6 +40,7 @@ use crate::network::{NetworkStatus, NetworkStatusEvent};
 use crate::pane_group::focus_state::PaneFocusHandle;
 use crate::pane_group::pane::view;
 use crate::pane_group::{BackingView, PaneConfiguration, PaneEvent};
+use crate::product_surfaces;
 use crate::search::external_secrets::view::ExternalSecretsMenu;
 use crate::server::cloud_objects::update_manager::{FetchSingleObjectOption, UpdateManager};
 use crate::server::ids::{ServerId, SyncId};
@@ -1304,9 +1305,13 @@ impl View for EnvVarCollectionView {
                             self.breadcrumbs.clone(),
                             appearance,
                             |ctx, _, breadcrumb| {
-                                ctx.dispatch_typed_action(EnvVarCollectionAction::ViewInWarpDrive(
-                                    breadcrumb.kind.into_item_id(),
-                                ));
+                                if product_surfaces::warp_drive_surface_enabled() {
+                                    ctx.dispatch_typed_action(
+                                        EnvVarCollectionAction::ViewInWarpDrive(
+                                            breadcrumb.kind.into_item_id(),
+                                        ),
+                                    );
+                                }
                             },
                         ))
                         .with_horizontal_margin(CORE_HORIZONATAL_MARGIN)

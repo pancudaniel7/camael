@@ -8,7 +8,6 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use settings::Setting as _;
 use url::Url;
-use warp_core::context_flag::ContextFlag;
 use warp_editor::editor::NavigationKey;
 use warp_editor::model::{CoreEditorModel, RichTextEditorModel};
 use warpui::accessibility::{AccessibilityContent, WarpA11yRole};
@@ -72,9 +71,6 @@ use crate::server::ids::{ClientId, ServerId, SyncId};
 use crate::server::telemetry::{
     CloudObjectTelemetryMetadata, NotebookActionEvent, NotebookTelemetryMetadata,
     SharingDialogSource, TelemetryCloudObjectType, TelemetryEvent,
-};
-use crate::settings::app_installation_detection::{
-    UserAppInstallDetectionSettings, UserAppInstallStatus,
 };
 use crate::settings::{
     decrease_notebook_font_size, increase_notebook_font_size, FontSettings,
@@ -1407,35 +1403,6 @@ impl NotebookView {
                     .with_icon(icons::Icon::Paperclip)
                     .into_item(),
             );
-        }
-
-        // Add "Copy Link" to menu
-        if let Some(link) = self.notebook_link(ctx) {
-            menu_items.push(
-                MenuItemFields::new("Copy link")
-                    .with_on_select_action(NotebookAction::CopyLink(link))
-                    .with_icon(icons::Icon::Link)
-                    .into_item(),
-            );
-        }
-
-        if !warpui::platform::is_mobile_device()
-            && !ContextFlag::HideOpenOnDesktopButton.is_enabled()
-            && *UserAppInstallDetectionSettings::as_ref(ctx)
-                .user_app_installation_detected
-                .value()
-                == UserAppInstallStatus::Detected
-        {
-            if let Some(link) = self.notebook_link(ctx) {
-                if let Ok(url) = Url::parse(&link) {
-                    menu_items.push(
-                        MenuItemFields::new("Open on Desktop")
-                            .with_on_select_action(NotebookAction::OpenLinkOnDesktop(url))
-                            .with_icon(icons::Icon::Laptop)
-                            .into_item(),
-                    );
-                }
-            }
         }
 
         // Add "Duplicate" to menu
