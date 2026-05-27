@@ -20,7 +20,6 @@ mod sort_order;
 pub use sort_order::SortOrderArg;
 
 pub mod agent;
-pub mod api_key;
 pub mod completions;
 pub mod config_file;
 mod date_time;
@@ -247,15 +246,6 @@ impl Args {
                     }
                 }
 
-                if !FeatureFlag::APIKeyManagement.is_enabled() {
-                    let args: Vec<String> = env::args().collect();
-                    if args.len() > 1 && args[1] == "api-key" {
-                        eprintln!("error: unrecognized subcommand 'api-key'\n");
-                        eprintln!("For more information, try '--help'");
-                        std::process::exit(2);
-                    }
-                }
-
                 let command = Self::clap_command();
 
                 command.try_get_matches()
@@ -360,11 +350,6 @@ impl Args {
         // Hide the artifact subcommand from help text.
         if !FeatureFlag::ArtifactCommand.is_enabled() {
             command = command.mut_subcommand("artifact", |c| c.hide(true));
-        }
-
-        // Hide the api-key subcommand from help text.
-        if !FeatureFlag::APIKeyManagement.is_enabled() {
-            command = command.mut_subcommand("api-key", |c| c.hide(true));
         }
 
         // Wire up `--version` / `-V` using the same version metadata used elsewhere in the
@@ -554,9 +539,6 @@ pub enum CliCommand {
     #[command(subcommand)]
     Artifact(crate::artifact::ArtifactCommand),
 
-    /// Manage API keys.
-    #[command(subcommand)]
-    ApiKey(crate::api_key::ApiKeyCommand),
 }
 
 /// A subcommand of the main Warp application. This includes all [`WorkerCommand`]s as well as app-specific debugging tools.

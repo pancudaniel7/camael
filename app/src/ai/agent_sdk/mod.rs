@@ -16,7 +16,6 @@ use telemetry::CliTelemetryEvent;
 use warp_cli::agent::{
     AgentCommand, AgentProfileCommand, Harness, OutputFormat, Prompt, RunAgentArgs,
 };
-use warp_cli::api_key::ApiKeyCommand;
 use warp_cli::artifact::ArtifactCommand;
 use warp_cli::environment::{EnvironmentCommand, ImageCommand};
 use warp_cli::federate::FederateCommand;
@@ -75,7 +74,6 @@ mod admin;
 mod agent_config;
 mod agent_management;
 mod ambient;
-mod api_key;
 mod artifact;
 pub(crate) mod artifact_upload;
 mod common;
@@ -196,12 +194,6 @@ fn dispatch_command(
                 return Err(anyhow::anyhow!("invalid value 'artifact'"));
             }
             artifact::run(ctx, global_options, artifact_cmd)
-        }
-        CliCommand::ApiKey(api_key_cmd) => {
-            if !FeatureFlag::APIKeyManagement.is_enabled() {
-                return Err(anyhow::anyhow!("invalid value 'api-key'"));
-            }
-            api_key::run(ctx, global_options, api_key_cmd)
         }
     }
 }
@@ -1466,7 +1458,6 @@ fn command_requires_auth(command: &CliCommand) -> bool {
         CliCommand::Federate(_) => true,
         CliCommand::HarnessSupport(_) => true,
         CliCommand::Artifact(_) => true,
-        CliCommand::ApiKey(_) => true,
     }
 }
 
@@ -1695,11 +1686,6 @@ fn command_to_telemetry_event(command: &CliCommand) -> CliTelemetryEvent {
             ArtifactCommand::Upload(_) => CliTelemetryEvent::ArtifactUpload,
             ArtifactCommand::Get(_) => CliTelemetryEvent::ArtifactGet,
             ArtifactCommand::Download(_) => CliTelemetryEvent::ArtifactDownload,
-        },
-        CliCommand::ApiKey(api_key_cmd) => match api_key_cmd {
-            ApiKeyCommand::List(_) => CliTelemetryEvent::ApiKeyList,
-            ApiKeyCommand::Create(_) => CliTelemetryEvent::ApiKeyCreate,
-            ApiKeyCommand::Expire(_) => CliTelemetryEvent::ApiKeyExpire,
         },
     }
 }
