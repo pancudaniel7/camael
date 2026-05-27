@@ -1355,7 +1355,6 @@ pub enum TelemetryEvent {
     AutoupdateRelaunchAttempt {
         new_version: String,
     },
-    SkipOnboardingSurvey,
     ToggleRestoreSession(bool),
     DatabaseStartUpError(String),
     DatabaseReadError(String),
@@ -4105,7 +4104,6 @@ impl TelemetryEvent {
             | TelemetryEvent::DeleteCustomTheme
             | TelemetryEvent::SplitPane
             | TelemetryEvent::UnableToAutoUpdateToNewVersion
-            | TelemetryEvent::SkipOnboardingSurvey
             | TelemetryEvent::LoggedOutStartup
             | TelemetryEvent::OpenWorkflowSearch
             | TelemetryEvent::OpenQuakeModeWindow
@@ -4823,7 +4821,6 @@ impl TelemetryEvent {
             | TelemetryEvent::SplitPane
             | TelemetryEvent::UnableToAutoUpdateToNewVersion
             | TelemetryEvent::AutoupdateRelaunchAttempt { .. }
-            | TelemetryEvent::SkipOnboardingSurvey
             | TelemetryEvent::ToggleRestoreSession(_)
             | TelemetryEvent::DatabaseStartUpError(_)
             | TelemetryEvent::DatabaseReadError(_)
@@ -5389,7 +5386,6 @@ impl TelemetryEventDesc for TelemetryEventDiscriminants {
             Self::UnableToAutoUpdateToNewVersion | Self::AutoupdateRelaunchAttempt => {
                 EnablementState::Always
             }
-            Self::SkipOnboardingSurvey => EnablementState::Always,
             Self::ToggleRestoreSession => EnablementState::Always,
             Self::DatabaseStartUpError => EnablementState::Always,
             Self::DatabaseReadError => EnablementState::Always,
@@ -5894,7 +5890,6 @@ impl TelemetryEventDesc for TelemetryEventDiscriminants {
             Self::UnableToAutoUpdateToNewVersion => "Unable to Update To New Version",
             Self::AutoupdateRelaunchAttempt => "Attempting to Relaunch for Update",
             Self::SplitPane => "Split Pane",
-            Self::SkipOnboardingSurvey => "Skip Onboarding Survey",
             Self::ToggleRestoreSession => "Toggle Restore Session",
             Self::DatabaseStartUpError => "Database Startup Error",
             Self::DatabaseWriteError => "Database Write Error",
@@ -6484,7 +6479,6 @@ impl TelemetryEventDesc for TelemetryEventDiscriminants {
             Self::AutoupdateRelaunchAttempt => {
                 "Attempted to relaunch the app after installing an update"
             }
-            Self::SkipOnboardingSurvey => "Skipped onboarding survey as a whole",
             Self::ToggleRestoreSession => {
                 "Toggled session restoration (\"Restore windows, tabs, panes, on startup\")"
             }

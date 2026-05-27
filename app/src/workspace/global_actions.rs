@@ -175,8 +175,7 @@ fn create_anonymous_user(_: &(), ctx: &mut AppContext) {
     log::info!("Creating anonymous user");
     let anonymous_user_type = AnonymousUserType::NativeClientAnonymousUser;
     let server_api = ServerApiProvider::handle(ctx).read(ctx, |provider, _ctx| provider.get());
-    let result =
-        warpui::r#async::block_on(server_api.create_anonymous_user(None, anonymous_user_type));
+    let result = warpui::r#async::block_on(server_api.create_anonymous_user(anonymous_user_type));
     match result {
         Ok(user) => log::info!("Successfully created anonymous user {user:?}"),
         Err(err) => log::error!("Failed to create anonymous user: {err:?}"),

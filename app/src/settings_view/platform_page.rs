@@ -9,11 +9,6 @@ pub enum PlatformPageAction {
     NoOp,
 }
 
-pub enum PlatformPageViewEvent {
-    ShowCreateApiKeyModal,
-    HideCreateApiKeyModal,
-}
-
 pub struct PlatformPageView {
     page: PageType<Self>,
 }
@@ -27,7 +22,7 @@ impl PlatformPageView {
 }
 
 impl Entity for PlatformPageView {
-    type Event = PlatformPageViewEvent;
+    type Event = ();
 }
 
 impl TypedActionView for PlatformPageView {

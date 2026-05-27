@@ -34,10 +34,6 @@ use warp_graphql::mutations::delete_ai_conversation::{
     DeleteAIConversation, DeleteAIConversationVariables, DeleteConversationInput,
     DeleteConversationResult,
 };
-use warp_graphql::mutations::generate_code_embeddings::{
-    GenerateCodeEmbeddings, GenerateCodeEmbeddingsInput, GenerateCodeEmbeddingsResult,
-    GenerateCodeEmbeddingsVariables,
-};
 use warp_graphql::mutations::generate_commands::{
     GenerateCommands, GenerateCommandsInput, GenerateCommandsResult, GenerateCommandsStatus,
     GenerateCommandsVariables,
@@ -51,9 +47,6 @@ use warp_graphql::mutations::generate_metadata_for_command::{
     GenerateMetadataForCommand, GenerateMetadataForCommandInput, GenerateMetadataForCommandResult,
     GenerateMetadataForCommandStatus, GenerateMetadataForCommandVariables,
 };
-use warp_graphql::mutations::populate_merkle_tree_cache::{
-    PopulateMerkleTreeCache, PopulateMerkleTreeCacheResult, PopulateMerkleTreeCacheVariables,
-};
 use warp_graphql::mutations::request_bonus::{
     ProvideNegativeFeedbackResponseForAiConversation,
     ProvideNegativeFeedbackResponseForAiConversationInput,
@@ -62,13 +55,6 @@ use warp_graphql::mutations::request_bonus::{
 use warp_graphql::mutations::update_agent_task::{
     AgentTaskStatusMessageInput, UpdateAgentTask, UpdateAgentTaskInput, UpdateAgentTaskResult,
     UpdateAgentTaskVariables,
-};
-use warp_graphql::mutations::update_merkle_tree::{
-    MerkleTreeNode, UpdateMerkleTree, UpdateMerkleTreeInput, UpdateMerkleTreeResult,
-    UpdateMerkleTreeVariables,
-};
-use warp_graphql::queries::codebase_context_config::{
-    CodebaseContextConfigQuery, CodebaseContextConfigResult, CodebaseContextConfigVariables,
 };
 use warp_graphql::queries::free_available_models::{
     FreeAvailableModels, FreeAvailableModelsInput, FreeAvailableModelsResult,
@@ -80,9 +66,6 @@ use warp_graphql::queries::get_available_harnesses::{
 use warp_graphql::queries::get_feature_model_choices::{
     GetFeatureModelChoices, GetFeatureModelChoicesVariables,
 };
-use warp_graphql::queries::get_relevant_fragments::{
-    GetRelevantFragmentsQuery, GetRelevantFragmentsResult, GetRelevantFragmentsVariables,
-};
 #[cfg(not(feature = "agent_mode_evals"))]
 use warp_graphql::queries::get_request_limit_info::{
     GetRequestLimitInfo, GetRequestLimitInfoVariables,
@@ -90,12 +73,6 @@ use warp_graphql::queries::get_request_limit_info::{
 use warp_graphql::queries::get_scheduled_agent_history::{
     GetScheduledAgentHistory, GetScheduledAgentHistoryVariables, ScheduledAgentHistory,
     ScheduledAgentHistoryInput, ScheduledAgentHistoryResult,
-};
-use warp_graphql::queries::rerank_fragments::{
-    RerankFragments, RerankFragmentsResult, RerankFragmentsVariables,
-};
-use warp_graphql::queries::sync_merkle_tree::{
-    SyncMerkleTree, SyncMerkleTreeInput, SyncMerkleTreeResult, SyncMerkleTreeVariables,
 };
 use warp_graphql::queries::task_attachments::{
     Task as TaskAttachmentsQuery, TaskInput, TaskResult, TaskVariables,
@@ -1021,20 +998,6 @@ pub trait AIClient: 'static + Send + Sync {
         referrer: Option<String>,
     ) -> Result<ModelsByFeature, anyhow::Error>;
 
-    async fn update_merkle_tree(
-        &self,
-        embedding_config: EmbeddingConfig,
-        nodes: Vec<IntermediateNode>,
-    ) -> anyhow::Result<HashMap<NodeHash, bool>>;
-
-    async fn generate_code_embeddings(
-        &self,
-        embedding_config: EmbeddingConfig,
-        fragments: Vec<full_source_code_embedding::Fragment>,
-        root_hash: NodeHash,
-        repo_metadata: RepoMetadata,
-    ) -> anyhow::Result<HashMap<ContentHash, bool>>;
-
     async fn provide_negative_feedback_response_for_ai_conversation(
         &self,
         conversation_id: String,
@@ -1682,82 +1645,6 @@ impl AIClient for ServerApi {
             }
             FreeAvailableModelsResult::Unknown => {
                 Err(anyhow!("Unexpected freeAvailableModels response variant"))
-            }
-        }
-    }
-
-    async fn update_merkle_tree(
-        &self,
-        embedding_config: EmbeddingConfig,
-        nodes: Vec<IntermediateNode>,
-    ) -> anyhow::Result<HashMap<NodeHash, bool>> {
-        let nodes = nodes
-            .into_iter()
-            .map(|node| MerkleTreeNode {
-                hash: node.hash.into(),
-                children: node.children.into_iter().map(Into::into).collect(),
-            })
-            .collect_vec();
-        let variables = UpdateMerkleTreeVariables {
-            input: UpdateMerkleTreeInput {
-                embedding_config: embedding_config.into(),
-                nodes,
-            },
-            request_context: get_request_context(),
-        };
-        let operation = UpdateMerkleTree::build(variables);
-        let response = self.send_graphql_request(operation, None).await?;
-
-        match response.update_merkle_tree {
-            UpdateMerkleTreeResult::UpdateMerkleTreeOutput(output) => {
-                let mut node_results = HashMap::with_capacity(output.results.len());
-                for result in output.results {
-                    node_results.insert(result.hash.try_into()?, result.success);
-                }
-                Ok(node_results)
-            }
-            UpdateMerkleTreeResult::UpdateMerkleTreeError(e) => Err(anyhow!(e.error)),
-            UpdateMerkleTreeResult::UserFacingError(e) => {
-                Err(anyhow!(get_user_facing_error_message(e)))
-            }
-            UpdateMerkleTreeResult::Unknown => Err(anyhow!("failed to update merkle tree")),
-        }
-    }
-
-    async fn generate_code_embeddings(
-        &self,
-        embedding_config: EmbeddingConfig,
-        fragments: Vec<full_source_code_embedding::Fragment>,
-        root_hash: NodeHash,
-        repo_metadata: RepoMetadata,
-    ) -> anyhow::Result<HashMap<ContentHash, bool>> {
-        let variables = GenerateCodeEmbeddingsVariables {
-            input: GenerateCodeEmbeddingsInput {
-                embedding_config: embedding_config.into(),
-                fragments: fragments.into_iter().map(Into::into).collect(),
-                repo_metadata: repo_metadata.into(),
-                root_hash: root_hash.into(),
-            },
-            request_context: get_request_context(),
-        };
-
-        let operation = GenerateCodeEmbeddings::build(variables);
-        let response = self.send_graphql_request(operation, None).await?;
-
-        match response.generate_code_embeddings {
-            GenerateCodeEmbeddingsResult::GenerateCodeEmbeddingsOutput(output) => {
-                let mut results = HashMap::with_capacity(output.embedding_results.len());
-                for result in output.embedding_results {
-                    results.insert(result.hash.try_into()?, result.success);
-                }
-                Ok(results)
-            }
-            GenerateCodeEmbeddingsResult::GenerateCodeEmbeddingsError(e) => Err(anyhow!(e.error)),
-            GenerateCodeEmbeddingsResult::UserFacingError(e) => {
-                Err(anyhow!(get_user_facing_error_message(e)))
-            }
-            GenerateCodeEmbeddingsResult::Unknown => {
-                Err(anyhow!("failed to generate code embeddings"))
             }
         }
     }
@@ -2995,173 +2882,64 @@ impl TryFrom<warp_graphql::queries::list_ai_conversations::AIConversationMetadat
 impl StoreClient for ServerApi {
     async fn update_intermediate_nodes(
         &self,
-        embedding_config: EmbeddingConfig,
-        nodes: Vec<IntermediateNode>,
+        _embedding_config: EmbeddingConfig,
+        _nodes: Vec<IntermediateNode>,
     ) -> Result<HashMap<NodeHash, bool>, full_source_code_embedding::Error> {
-        let results = self.update_merkle_tree(embedding_config, nodes).await?;
-        Ok(results)
+        Ok(HashMap::new())
     }
 
     async fn generate_embeddings(
         &self,
-        embedding_config: EmbeddingConfig,
-        fragments: Vec<full_source_code_embedding::Fragment>,
-        root_hash: NodeHash,
-        repo_metadata: RepoMetadata,
+        _embedding_config: EmbeddingConfig,
+        _fragments: Vec<full_source_code_embedding::Fragment>,
+        _root_hash: NodeHash,
+        _repo_metadata: RepoMetadata,
     ) -> Result<HashMap<ContentHash, bool>, full_source_code_embedding::Error> {
-        let results = self
-            .generate_code_embeddings(embedding_config, fragments, root_hash, repo_metadata)
-            .await?;
-        Ok(results)
+        Ok(HashMap::new())
     }
 
     async fn populate_merkle_tree_cache(
         &self,
-        embedding_config: EmbeddingConfig,
-        root_hash: NodeHash,
-        repo_metadata: RepoMetadata,
+        _embedding_config: EmbeddingConfig,
+        _root_hash: NodeHash,
+        _repo_metadata: RepoMetadata,
     ) -> Result<bool, full_source_code_embedding::Error> {
-        let variables = PopulateMerkleTreeCacheVariables {
-            embedding_config: embedding_config.into(),
-            root_hash: root_hash.into(),
-            repo_metadata: repo_metadata.into(),
-            request_context: get_request_context(),
-        };
-        let operation = PopulateMerkleTreeCache::build(variables);
-        let response = self.send_graphql_request(operation, None).await?;
-
-        match response.populate_merkle_tree_cache {
-            PopulateMerkleTreeCacheResult::PopulateMerkleTreeCacheOutput(output) => {
-                Ok(output.success)
-            }
-            PopulateMerkleTreeCacheResult::UserFacingError(e) => {
-                Err(anyhow!(get_user_facing_error_message(e)).into())
-            }
-            PopulateMerkleTreeCacheResult::Unknown => {
-                Err(anyhow!("failed to populate merkle tree cache").into())
-            }
-        }
+        Ok(true)
     }
 
     async fn sync_merkle_tree(
         &self,
-        nodes: Vec<NodeHash>,
-        embedding_config: EmbeddingConfig,
+        _nodes: Vec<NodeHash>,
+        _embedding_config: EmbeddingConfig,
     ) -> Result<HashSet<NodeHash>, full_source_code_embedding::Error> {
-        let input = SyncMerkleTreeInput {
-            hashed_nodes: nodes.into_iter().map(Into::into).collect(),
-            embedding_config: embedding_config.into(),
-        };
-
-        let variables = SyncMerkleTreeVariables {
-            input,
-            request_context: get_request_context(),
-        };
-
-        let operation = SyncMerkleTree::build(variables);
-        let response = self.send_graphql_request(operation, None).await?;
-
-        match response.sync_merkle_tree {
-            SyncMerkleTreeResult::SyncMerkleTreeOutput(output) => {
-                let mut node_results = HashSet::with_capacity(output.changed_nodes.len());
-                for hash in output.changed_nodes {
-                    node_results.insert(hash.try_into()?);
-                }
-                Ok(node_results)
-            }
-            SyncMerkleTreeResult::SyncMerkleTreeError(e) => Err(anyhow!(e.error).into()),
-            SyncMerkleTreeResult::UserFacingError(e) => {
-                Err(anyhow!(get_user_facing_error_message(e)).into())
-            }
-            SyncMerkleTreeResult::Unknown => Err(anyhow!("failed to sync merkle tree").into()),
-        }
+        Ok(HashSet::new())
     }
 
     async fn rerank_fragments(
         &self,
-        query: String,
+        _query: String,
         fragments: Vec<full_source_code_embedding::Fragment>,
     ) -> Result<Vec<full_source_code_embedding::Fragment>, full_source_code_embedding::Error> {
-        let variables = RerankFragmentsVariables {
-            query,
-            fragments: fragments.into_iter().map(Into::into).collect(),
-            request_context: get_request_context(),
-        };
-        let operation = RerankFragments::build(variables);
-        let response = self.send_graphql_request(operation, None).await?;
-
-        match response.rerank_fragments {
-            RerankFragmentsResult::RerankFragmentsOutput(output) => Ok(output
-                .ranked_fragments
-                .into_iter()
-                .map(|fragment| fragment.try_into())
-                .collect::<Result<Vec<_>, _>>()?),
-            RerankFragmentsResult::RerankFragmentsError(e) => Err(anyhow!(e.error).into()),
-            RerankFragmentsResult::UserFacingError(e) => {
-                Err(anyhow!(get_user_facing_error_message(e)).into())
-            }
-            RerankFragmentsResult::Unknown => Err(anyhow!("failed to rerank fragments").into()),
-        }
+        Ok(fragments)
     }
 
     async fn get_relevant_fragments(
         &self,
-        embedding_config: EmbeddingConfig,
-        query: String,
-        root_hash: NodeHash,
-        repo_metadata: RepoMetadata,
+        _embedding_config: EmbeddingConfig,
+        _query: String,
+        _root_hash: NodeHash,
+        _repo_metadata: RepoMetadata,
     ) -> Result<Vec<ContentHash>, full_source_code_embedding::Error> {
-        let variables = GetRelevantFragmentsVariables {
-            query,
-            root_hash: root_hash.into(),
-            embedding_config: embedding_config.into(),
-            request_context: get_request_context(),
-            repo_metadata: repo_metadata.into(),
-        };
-        let operation = GetRelevantFragmentsQuery::build(variables);
-        let response = self.send_graphql_request(operation, None).await?;
-
-        match response.get_relevant_fragments {
-            GetRelevantFragmentsResult::GetRelevantFragmentsOutput(output) => Ok(output
-                .candidate_hashes
-                .into_iter()
-                .map(|hash| hash.try_into())
-                .collect::<Result<Vec<_>, _>>()?),
-            GetRelevantFragmentsResult::UserFacingError(e) => {
-                Err(anyhow!(get_user_facing_error_message(e)).into())
-            }
-            GetRelevantFragmentsResult::GetRelevantFragmentsError(e) => {
-                Err(anyhow!(e.error).into())
-            }
-            GetRelevantFragmentsResult::Unknown => {
-                Err(anyhow!("failed to get relevant fragments").into())
-            }
-        }
+        Ok(Vec::new())
     }
 
     async fn codebase_context_config(
         &self,
     ) -> Result<CodebaseContextConfig, full_source_code_embedding::Error> {
-        let variables = CodebaseContextConfigVariables {
-            request_context: get_request_context(),
-        };
-        let operation = CodebaseContextConfigQuery::build(variables);
-        let response = self.send_graphql_request(operation, None).await?;
-
-        match response.codebase_context_config {
-            CodebaseContextConfigResult::CodebaseContextConfigOutput(output) => {
-                Ok(CodebaseContextConfig {
-                    embedding_config: output.embedding_config.try_into()?,
-                    embedding_cadence: Duration::from_secs(output.embedding_cadence as u64),
-                })
-            }
-            CodebaseContextConfigResult::UserFacingError(e) => {
-                Err(anyhow!(get_user_facing_error_message(e)).into())
-            }
-            CodebaseContextConfigResult::Unknown => {
-                Err(anyhow!("failed to retrieve codebase context config").into())
-            }
-        }
+        Ok(CodebaseContextConfig {
+            embedding_config: EmbeddingConfig::default(),
+            embedding_cadence: Duration::from_secs(300),
+        })
     }
 }
 

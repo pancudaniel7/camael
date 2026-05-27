@@ -1161,8 +1161,8 @@ impl SettingsView {
         });
 
         let platform_page_handle = ctx.add_typed_action_view(platform_page::PlatformPageView::new);
-        ctx.subscribe_to_view(&platform_page_handle, |me, _, event, ctx| {
-            me.handle_platform_page_event(event, ctx);
+        ctx.subscribe_to_view(&platform_page_handle, |_, _, _, ctx| {
+            ctx.notify();
         });
 
         // MCP Servers page
@@ -1725,23 +1725,6 @@ impl SettingsView {
                 ctx.notify();
             }
             PrivacyPageViewEvent::HideAddRegexModal => {
-                // Modal rendering is handled in get_modal_content_for_page
-                ctx.notify();
-            }
-        }
-    }
-
-    fn handle_platform_page_event(
-        &mut self,
-        event: &platform_page::PlatformPageViewEvent,
-        ctx: &mut ViewContext<Self>,
-    ) {
-        match event {
-            platform_page::PlatformPageViewEvent::ShowCreateApiKeyModal => {
-                // Modal rendering is handled in get_modal_content_for_page
-                ctx.notify();
-            }
-            platform_page::PlatformPageViewEvent::HideCreateApiKeyModal => {
                 // Modal rendering is handled in get_modal_content_for_page
                 ctx.notify();
             }

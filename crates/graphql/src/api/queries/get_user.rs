@@ -44,10 +44,6 @@ query GetUser($requestContext: RequestContext!) {
               description
               disableReason
               visionSupported
-              onboardingInfo {
-                title
-                description
-              }
             }
           }
           planning {
@@ -60,10 +56,6 @@ query GetUser($requestContext: RequestContext!) {
               description
               disableReason
               visionSupported
-              onboardingInfo {
-                title
-                description
-              }
             }
           }
           coding {
@@ -76,10 +68,6 @@ query GetUser($requestContext: RequestContext!) {
               description
               disableReason
               visionSupported
-              onboardingInfo {
-                title
-                description
-              }
             }
           }
           cliAgent {
@@ -92,10 +80,6 @@ query GetUser($requestContext: RequestContext!) {
               description
               disableReason
               visionSupported
-              onboardingInfo {
-                title
-                description
-              }
             }
           }
         }

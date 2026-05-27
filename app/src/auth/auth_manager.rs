@@ -565,20 +565,12 @@ impl AuthManager {
         }
     }
 
-    pub fn create_anonymous_user(
-        &self,
-        referral_code: Option<String>,
-        ctx: &mut ModelContext<Self>,
-    ) {
+    pub fn create_anonymous_user(&self, ctx: &mut ModelContext<Self>) {
         let anonymous_user_type = AnonymousUserType::NativeClientAnonymousUserFeatureGated;
 
         let auth_client = self.auth_client.clone();
         let _ = ctx.spawn(
-            async move {
-                auth_client
-                    .create_anonymous_user(referral_code, anonymous_user_type)
-                    .await
-            },
+            async move { auth_client.create_anonymous_user(anonymous_user_type).await },
             Self::on_create_anonymous_user,
         );
     }

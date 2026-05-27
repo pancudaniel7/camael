@@ -20,7 +20,6 @@ pub use snapshot::SnapshotStorage;
 use string_offset::ByteOffset;
 pub use sync_client::SyncTask;
 use thiserror::Error;
-use warp_graphql::queries::rerank_fragments::FragmentLocationInput;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -206,37 +205,5 @@ impl From<Fragment> for warp_graphql::full_source_code_embedding::Fragment {
             content: val.content,
             content_hash: val.content_hash.into(),
         }
-    }
-}
-
-impl From<Fragment> for warp_graphql::queries::rerank_fragments::RerankFragmentInput {
-    fn from(val: Fragment) -> Self {
-        Self {
-            content: val.content,
-            content_hash: val.content_hash.into(),
-            location: FragmentLocationInput {
-                byte_start: val.location.byte_range.start.as_usize() as i32,
-                byte_end: val.location.byte_range.end.as_usize() as i32,
-                file_path: val.location.absolute_path.to_string_lossy().to_string(),
-            },
-        }
-    }
-}
-
-impl TryFrom<warp_graphql::queries::rerank_fragments::RerankFragment> for Fragment {
-    type Error = Error;
-
-    fn try_from(
-        val: warp_graphql::queries::rerank_fragments::RerankFragment,
-    ) -> Result<Self, Self::Error> {
-        Ok(Self {
-            content: val.content,
-            content_hash: val.content_hash.try_into()?,
-            location: FragmentLocation {
-                absolute_path: PathBuf::from(val.location.file_path),
-                byte_range: ByteOffset::from(val.location.byte_start as usize)
-                    ..ByteOffset::from(val.location.byte_end as usize),
-            },
-        })
     }
 }

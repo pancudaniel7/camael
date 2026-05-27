@@ -117,29 +117,6 @@ enum AICreditsUsageSource {
   LOCAL
 }
 
-type APIKeyAgentInfo {
-  name: String!
-  uid: ID!
-}
-
-type APIKeyProperties {
-  agentInfo: APIKeyAgentInfo
-  createdAt: Time!
-  expiresAt: Time
-  keySuffix: String!
-  lastUsedAt: Time
-  name: String!
-  ownerType: OwnerType!
-  uid: ID!
-}
-
-type APIKeyPropertiesOutput implements Response {
-  apiKeys: [APIKeyProperties!]!
-  responseContext: ResponseContext!
-}
-
-union APIKeyPropertiesResult = APIKeyPropertiesOutput | UserFacingError
-
 enum AccessLevel {
   Editor
   Full
@@ -154,20 +131,6 @@ type AccountDelinquencyError implements UserFacingErrorInterface {
   message: String!
 }
 
-"""Acquisition channel question response input"""
-input AcquisitionChannelQuestionResponseInput {
-  answer: AcquisitionChannelSurveyResponse!
-  details: String
-}
-
-"""Acquisition channel options for onboarding survey responses"""
-enum AcquisitionChannelSurveyResponse {
-  FRIEND
-  INTERNET
-  IN_THE_WILD
-  TEAMMATE
-}
-
 """
 More recent actions are returned with their exact timestamps. Older actions
 are bundled together to save space at the cost of being less time specific.
@@ -177,18 +140,6 @@ union ActionRecord = BundledActions | SingleAction
 enum ActionType {
   EXECUTED
 }
-
-input AddInviteLinkDomainRestrictionInput {
-  domain: String!
-  teamUid: ID!
-}
-
-type AddInviteLinkDomainRestrictionOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union AddInviteLinkDomainRestrictionResult = AddInviteLinkDomainRestrictionOutput | UserFacingError
 
 input AddObjectGuestsInput {
   accessLevel: AccessLevel!
@@ -710,14 +661,6 @@ union CloudObjectResult = CloudObjectOutput | UserFacingError
 
 union CloudObjectWithDescendants = AIConversation | FolderWithDescendants | GenericStringObject | Notebook | Workflow
 
-type CodebaseContextConfigOutput implements Response {
-  embeddingCadence: Int!
-  embeddingConfig: EmbeddingConfig!
-  responseContext: ResponseContext!
-}
-
-union CodebaseContextConfigResult = CodebaseContextConfigOutput | UserFacingError
-
 type CodebaseContextPolicy {
   defaultEnabledValue: Boolean!
   embeddingGenerationBatchSize: Int!
@@ -838,7 +781,6 @@ union CreateAgentTaskResult = CreateAgentTaskOutput | UserFacingError
 input CreateAnonymousUserInput {
   anonymousUserType: AnonymousUserType!
   expirationType: AnonymousUserExpirationType!
-  referralCode: String
 }
 
 type CreateAnonymousUserOutput implements Response {
@@ -947,19 +889,6 @@ type CreateSimpleIntegrationOutput implements Response {
 
 union CreateSimpleIntegrationResult = CreateSimpleIntegrationOutput | UserFacingError
 
-input CreateTeamInput {
-  discoverable: Boolean! = false
-  entrypoint: CloudObjectEventEntrypoint!
-  name: String!
-}
-
-type CreateTeamOutput implements Response {
-  responseContext: ResponseContext!
-  workspace: Workspace!
-}
-
-union CreateTeamResult = CreateTeamOutput | UserFacingError
-
 type CreateUploadTarget {
   fields: [UploadField!]!
   headers: [CreateUploadTargetHeader!]!
@@ -1019,18 +948,6 @@ type DeleteConversationOutput implements Response {
 
 union DeleteConversationResult = DeleteConversationOutput | UserFacingError
 
-input DeleteInviteLinkDomainRestrictionInput {
-  teamUid: ID!
-  uid: ID!
-}
-
-type DeleteInviteLinkDomainRestrictionOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union DeleteInviteLinkDomainRestrictionResult = DeleteInviteLinkDomainRestrictionOutput | UserFacingError
-
 input DeleteManagedSecretInput {
   name: String!
   owner: Owner!
@@ -1056,18 +973,6 @@ type DeleteObjectOutput implements Response {
 }
 
 union DeleteObjectResult = DeleteObjectOutput | UserFacingError
-
-input DeleteTeamInviteInput {
-  email: String!
-  teamUid: ID!
-}
-
-type DeleteTeamInviteOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union DeleteTeamInviteResult = DeleteTeamInviteOutput | UserFacingError
 
 type DeletedObjectUids {
   folderUids: [ID!]
@@ -1290,17 +1195,6 @@ enum Experiment {
   WINDOWS_LAUNCH_EXPERIMENT
 }
 
-input ExpireApiKeyInput {
-  keyUID: ID!
-}
-
-type ExpireApiKeyOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union ExpireApiKeyResult = ExpireApiKeyOutput | UserFacingError
-
 type FeatureModelChoice {
   agentMode: AvailableLlms!
   cliAgent: AvailableLlms!
@@ -1353,18 +1247,6 @@ input Fragment {
   contentHash: ContentHash!
 }
 
-type FragmentLocation {
-  byteEnd: Int!
-  byteStart: Int!
-  filePath: String!
-}
-
-input FragmentLocationInput {
-  byteEnd: Int!
-  byteStart: Int!
-  filePath: String!
-}
-
 input FreeAvailableModelsInput {
   """The download referral source, if any (e.g. \"codex\")."""
   referrer: String
@@ -1382,57 +1264,6 @@ type GcpProviderConfig {
   workloadIdentityFederationPoolId: String!
   workloadIdentityFederationProviderId: String!
 }
-
-input GenerateApiKeyInput {
-  """
-  Optional agent UID to use as the authenticated principal for this key.
-  The team is resolved from the agent automatically. The caller must be a member of that team.
-  The agent must be available on the team's current plan.
-  """
-  agentUid: ID
-  expiresAt: Time
-  name: String!
-  teamId: ID
-}
-
-type GenerateApiKeyOutput implements Response {
-  apiKey: APIKeyProperties!
-
-  """
-  The raw API key - this is only returned once and should be saved by the client
-  """
-  rawApiKey: String!
-  responseContext: ResponseContext!
-}
-
-union GenerateApiKeyResult = GenerateApiKeyOutput | UserFacingError
-
-type GenerateCodeEmbeddingResult {
-  """The hash of the code fragment that was embedded."""
-  hash: ContentHash!
-
-  """Whether the embedding was successfully generated."""
-  success: Boolean!
-}
-
-type GenerateCodeEmbeddingsError {
-  error: String!
-}
-
-input GenerateCodeEmbeddingsInput {
-  embeddingConfig: EmbeddingConfig!
-  fragments: [Fragment!]!
-  repoMetadata: RepoMetadata!
-  rootHash: NodeHash!
-}
-
-type GenerateCodeEmbeddingsOutput implements Response {
-  embeddingConfig: EmbeddingConfig!
-  embeddingResults: [GenerateCodeEmbeddingResult!]!
-  responseContext: ResponseContext!
-}
-
-union GenerateCodeEmbeddingsResult = GenerateCodeEmbeddingsError | GenerateCodeEmbeddingsOutput | UserFacingError
 
 type GenerateCommandsFailure {
   type: GenerateCommandsFailureType!
@@ -1630,24 +1461,6 @@ type GetOAuthConnectTxStatusOutput implements Response {
 }
 
 union GetOAuthConnectTxStatusResult = GetOAuthConnectTxStatusOutput | UserFacingError
-
-type GetRelevantFragmentsError {
-  error: String!
-}
-
-input GetRelevantFragmentsInput {
-  embeddingConfig: EmbeddingConfig!
-  query: String!
-  repoMetadata: RepoMetadata!
-  rootHash: NodeHash!
-}
-
-type GetRelevantFragmentsOutput implements Response {
-  candidateHashes: [ContentHash!]!
-  responseContext: ResponseContext!
-}
-
-union GetRelevantFragmentsResult = GetRelevantFragmentsError | GetRelevantFragmentsOutput | UserFacingError
 
 type GitHubRepo {
   owner: String!
@@ -1861,18 +1674,6 @@ type IssueTaskIdentityTokenOutput implements Response {
 
 union IssueTaskIdentityTokenResult = IssueTaskIdentityTokenOutput | UserFacingError
 
-input JoinTeamWithTeamDiscoveryInput {
-  entrypoint: TeamDiscoveryEntrypoint!
-  teamUid: ID!
-}
-
-type JoinTeamWithTeamDiscoveryOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union JoinTeamWithTeamDiscoveryResult = JoinTeamWithTeamDiscoveryOutput | UserFacingError
-
 input LeaveObjectInput {
   objectUid: ID!
 }
@@ -2018,7 +1819,6 @@ type LlmInfo {
   displayName: String!
   hostConfigs: [RoutingHostConfig!]!
   id: String!
-  onboardingInfo: LlmOnboardingInfo
   pricing: LlmPricing!
   provider: LlmProvider!
   reasoningLevel: String
@@ -2074,11 +1874,6 @@ input LlmModelSettingsInput {
 input LlmModelSettingsInputEntry {
   modelId: String!
   settings: LlmModelSettingsInput!
-}
-
-type LlmOnboardingInfo {
-  description: String!
-  title: String!
 }
 
 type LlmPricing {
@@ -2249,11 +2044,6 @@ enum MembershipRole {
   USER
 }
 
-input MerkleTreeNode {
-  children: [NodeHash!]!
-  hash: NodeHash!
-}
-
 """
 Error type for when a user tries to mint a custom token for a non-anonymous user.
 """
@@ -2411,18 +2201,6 @@ type ObjectUpdateSuccess {
   revisionTs: Time!
 }
 
-input OnboardingSurveyResponse {
-  answer: String!
-  questionIdentifier: String!
-}
-
-"""Onboarding survey status enum matching the database enum values"""
-enum OnboardingSurveyStatus {
-  COMPLETED
-  SHOWN
-  SKIPPED
-}
-
 type OveragesPricing {
   pricePerRequestUsdCents: Int!
 }
@@ -2537,19 +2315,6 @@ enum PoolingType {
   USER
 }
 
-input PopulateMerkleTreeCacheInput {
-  embeddingConfig: EmbeddingConfig!
-  repoMetadata: RepoMetadata
-  rootHash: NodeHash!
-}
-
-type PopulateMerkleTreeCacheOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union PopulateMerkleTreeCacheResult = PopulateMerkleTreeCacheOutput | UserFacingError
-
 type PricingInfo {
   addonCreditsOptions: [AddonCreditsOption!]!
   overages: OveragesPricing!
@@ -2632,16 +2397,6 @@ type RecordObjectActionOutput implements Response {
 
 union RecordObjectActionResult = RecordObjectActionOutput | UserFacingError
 
-"""
-referrals.graphqls defines types and queries related to our referrals process.
-Note that we use the term "referrals" here and in our code, but the relevant db table is called "invites".
-"""
-type ReferralInfo {
-  isReferred: Boolean!
-  numberClaimed: Int!
-  referralCode: String!
-}
-
 input RemoveObjectGuestInput {
   email: String
   objectUid: ID!
@@ -2665,31 +2420,6 @@ type RemoveObjectLinkPermissionsOutput implements Response {
 }
 
 union RemoveObjectLinkPermissionsResult = RemoveObjectLinkPermissionsOutput | UserFacingError
-
-input RemoveUserFromTeamInput {
-  entrypoint: CloudObjectEventEntrypoint!
-  teamUid: ID!
-  userUid: ID!
-}
-
-type RemoveUserFromTeamOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union RemoveUserFromTeamResult = RemoveUserFromTeamOutput | UserFacingError
-
-input RenameTeamInput {
-  newName: String!
-  teamUid: ID!
-}
-
-type RenameTeamOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union RenameTeamResult = RenameTeamOutput | UserFacingError
 
 input RepoInput {
   owner: String!
@@ -2750,45 +2480,6 @@ type RequestsRefundedOutput implements Response {
 
 union RequestsRefundedResult = RequestsRefundedOutput | UserFacingError
 
-type RerankFragment {
-  content: String!
-  contentHash: ContentHash!
-  location: FragmentLocation!
-}
-
-input RerankFragmentInput {
-  content: String!
-  contentHash: ContentHash!
-  location: FragmentLocationInput!
-}
-
-type RerankFragmentsError {
-  error: String!
-}
-
-input RerankFragmentsInput {
-  fragments: [RerankFragmentInput!]!
-  query: String!
-}
-
-type RerankFragmentsOutput implements Response {
-  rankedFragments: [RerankFragment!]!
-  responseContext: ResponseContext!
-}
-
-union RerankFragmentsResult = RerankFragmentsError | RerankFragmentsOutput | UserFacingError
-
-input ResetInviteLinksInput {
-  teamUid: ID!
-}
-
-type ResetInviteLinksOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union ResetInviteLinksResult = ResetInviteLinksOutput | UserFacingError
-
 interface Response {
   responseContext: ResponseContext!
 }
@@ -2797,31 +2488,7 @@ type ResponseContext {
   serverVersion: String
 }
 
-"""Role question response input"""
-input RoleQuestionResponseInput {
-  answer: RoleSurveyResponse!
-}
-
-"""Role options for onboarding survey responses"""
-enum RoleSurveyResponse {
-  BACKEND_ENGINEER
-  BUSINESS_ANALYST
-  DATA
-  DEVOPS_SRE
-  ENGINEERING_MANAGER
-  FRONTEND_ENGINEER
-  FULLSTACK_ENGINEER
-  MARKETER
-  MOBILE_ENGINEER
-  OTHER
-  PRODUCT_DESIGNER
-  PRODUCT_MANAGER
-  SALES_BUSINESS_DEV
-  STUDENT
-}
-
 type RootMutation {
-  addInviteLinkDomainRestriction(input: AddInviteLinkDomainRestrictionInput!, requestContext: RequestContext!): AddInviteLinkDomainRestrictionResult!
   addObjectGuests(input: AddObjectGuestsInput!, requestContext: RequestContext!): AddObjectGuestsResult!
   bulkCreateObjects(input: BulkCreateObjectsInput!, requestContext: RequestContext!): BulkCreateObjectsResult!
   confirmFileArtifactUpload(input: ConfirmFileArtifactUploadInput!, requestContext: RequestContext!): ConfirmFileArtifactUploadResult!
@@ -2838,19 +2505,11 @@ type RootMutation {
   createManagedSecret(input: CreateManagedSecretInput!, requestContext: RequestContext!): CreateManagedSecretResult!
   createNotebook(input: CreateNotebookInput!, requestContext: RequestContext!): CreateNotebookResult!
   createSimpleIntegration(input: CreateSimpleIntegrationInput!, requestContext: RequestContext!): CreateSimpleIntegrationResult!
-  createTeam(input: CreateTeamInput!, requestContext: RequestContext!): CreateTeamResult!
   createWorkflow(input: CreateWorkflowInput!, requestContext: RequestContext!): CreateWorkflowResult!
   deleteConversation(input: DeleteConversationInput!, requestContext: RequestContext!): DeleteConversationResult!
-  deleteInviteLinkDomainRestriction(input: DeleteInviteLinkDomainRestrictionInput!, requestContext: RequestContext!): DeleteInviteLinkDomainRestrictionResult!
   deleteManagedSecret(input: DeleteManagedSecretInput!, requestContext: RequestContext!): DeleteManagedSecretResult!
   deleteObject(input: DeleteObjectInput!, requestContext: RequestContext!): DeleteObjectResult!
-  deleteTeamInvite(input: DeleteTeamInviteInput!, requestContext: RequestContext!): DeleteTeamInviteResult!
   emptyTrash(input: EmptyTrashInput!, requestContext: RequestContext!): EmptyTrashResult!
-  expireApiKey(input: ExpireApiKeyInput!, requestContext: RequestContext!): ExpireApiKeyResult!
-  generateApiKey(input: GenerateApiKeyInput!, requestContext: RequestContext!): GenerateApiKeyResult!
-
-  """Generates source code embeddings for the given set of code fragments."""
-  generateCodeEmbeddings(input: GenerateCodeEmbeddingsInput!, requestContext: RequestContext!): GenerateCodeEmbeddingsResult!
   generateCommands(input: GenerateCommandsInput!, requestContext: RequestContext!): GenerateCommandsResult!
   generateDialogue(input: GenerateDialogueInput!, requestContext: RequestContext!): GenerateDialogueResult!
   generateMetadataForCommand(input: GenerateMetadataForCommandInput!, requestContext: RequestContext!): GenerateMetadataForCommandResult!
@@ -2858,13 +2517,11 @@ type RootMutation {
   giveUpNotebookEditAccess(input: UpdateNotebookEditAccessInput!, requestContext: RequestContext!): UpdateNotebookEditAccessResult!
   grabNotebookEditAccess(input: UpdateNotebookEditAccessInput!, requestContext: RequestContext!): UpdateNotebookEditAccessResult!
   issueTaskIdentityToken(input: IssueTaskIdentityTokenInput!, requestContext: RequestContext!): IssueTaskIdentityTokenResult!
-  joinTeamWithTeamDiscovery(input: JoinTeamWithTeamDiscoveryInput!, requestContext: RequestContext!): JoinTeamWithTeamDiscoveryResult!
 
   """The API for leaving an object as a direct guest or link-shared."""
   leaveObject(input: LeaveObjectInput!, requestContext: RequestContext!): LeaveObjectResult!
   mintCustomToken(requestContext: RequestContext!): MintCustomTokenResult!
   moveObject(input: MoveObjectInput!, requestContext: RequestContext!): MoveObjectResult!
-  populateMerkleTreeCache(input: PopulateMerkleTreeCacheInput!, requestContext: RequestContext!): PopulateMerkleTreeCacheResult!
   provideNegativeFeedbackResponseForAiConversation(input: ProvideNegativeFeedbackResponseForAiConversationInput!, requestContext: RequestContext!): RequestsRefundedResult!
   purchaseAddonCredits(input: PurchaseAddonCreditsInput!, requestContext: RequestContext!): PurchaseAddonCreditsResult!
 
@@ -2875,26 +2532,12 @@ type RootMutation {
   removeObjectGuest(input: RemoveObjectGuestInput!, requestContext: RequestContext!): RemoveObjectGuestResult!
   removeObjectLinkPermissions(input: RemoveObjectLinkPermissionsInput!, requestContext: RequestContext!): RemoveObjectLinkPermissionsResult!
 
-  """
-  `removeUserFromTeam` is the only mutation that should be used to remove a user from a team
-  in v2. Usage of the `leaveTeam` mutation in v1 will eventually be removed.
-  """
-  removeUserFromTeam(input: RemoveUserFromTeamInput!, requestContext: RequestContext!): RemoveUserFromTeamResult!
-  renameTeam(input: RenameTeamInput!, requestContext: RequestContext!): RenameTeamResult!
-  resetInviteLinks(input: ResetInviteLinksInput!, requestContext: RequestContext!): ResetInviteLinksResult!
-  sendOnboardingSurveyResponses(input: SendOnboardingSurveyResponsesInput!, requestContext: RequestContext!): SendOnboardingSurveyResponsesResult!
-  sendReferralInviteEmails(input: SendReferralInviteEmailsInput!, requestContext: RequestContext!): SendReferralInviteEmailsResult!
-  sendTeamInviteEmail(input: SendTeamInviteEmailInput!, requestContext: RequestContext!): SendTeamInviteEmailResult!
-  setIsInviteLinkEnabled(input: SetIsInviteLinkEnabledInput!, requestContext: RequestContext!): SetIsInviteLinkEnabledResult!
   setObjectLinkPermissions(input: SetObjectLinkPermissionsInput!, requestContext: RequestContext!): SetObjectLinkPermissionsResult!
-  setTeamDiscoverability(input: SetTeamDiscoverabilityInput!, requestContext: RequestContext!): SetTeamDiscoverabilityResult!
-  setTeamMemberRole(input: SetTeamMemberRoleInput!, requestContext: RequestContext!): SetTeamMemberRoleResult!
   setUserIsOnboarded(requestContext: RequestContext!): SetUserIsOnboardedResult!
   shareBlock(input: ShareBlockInput!, requestContext: RequestContext!): ShareBlockResult!
   stripeBillingPortal(input: StripeBillingPortalInput!, requestContext: RequestContext!): StripeBillingPortalResult!
   transferGenericStringObjectOwner(input: TransferGenericStringObjectOwnerInput!, requestContext: RequestContext!): TransferGenericStringObjectOwnerResult!
   transferNotebookOwner(input: TransferNotebookOwnerInput!, requestContext: RequestContext!): TransferNotebookOwnerResult!
-  transferTeamOwnership(input: TransferTeamOwnershipInput!, requestContext: RequestContext!): TransferTeamOwnershipResult! @deprecated(reason: "Use setTeamMemberRole instead")
   transferWorkflowOwner(input: TransferWorkflowOwnerInput!, requestContext: RequestContext!): TransferWorkflowOwnerResult!
   trashObject(input: TrashObjectInput!, requestContext: RequestContext!): TrashObjectResult!
   unshareBlock(input: UnshareBlockInput!, requestContext: RequestContext!): UnshareBlockResult!
@@ -2905,10 +2548,8 @@ type RootMutation {
   updateFolder(input: UpdateFolderInput!, requestContext: RequestContext!): UpdateFolderResult!
   updateGenericStringObject(input: UpdateGenericStringObjectInput!, requestContext: RequestContext!): UpdateGenericStringObjectResult!
   updateManagedSecret(input: UpdateManagedSecretInput!, requestContext: RequestContext!): UpdateManagedSecretResult!
-  updateMerkleTree(input: UpdateMerkleTreeInput!, requestContext: RequestContext!): UpdateMerkleTreeResult!
   updateNotebook(input: UpdateNotebookInput!, requestContext: RequestContext!): UpdateNotebookResult!
   updateObjectGuests(input: UpdateObjectGuestsInput!, requestContext: RequestContext!): UpdateObjectGuestsResult!
-  updateOnboardingSurveyStatus(input: UpdateOnboardingSurveyStatusInput!, requestContext: RequestContext!): UpdateOnboardingSurveyStatusResult!
   updateUserSettings(input: UpdateUserSettingsInput!, requestContext: RequestContext!): UpdateUserSettingsResult!
   updateWorkflow(input: UpdateWorkflowInput!, requestContext: RequestContext!): UpdateWorkflowResult!
 
@@ -2917,9 +2558,7 @@ type RootMutation {
 }
 
 type RootQuery {
-  apiKeys(requestContext: RequestContext!): APIKeyPropertiesResult!
   cloudObject(input: CloudObjectInput!, requestContext: RequestContext!): CloudObjectResult!
-  codebaseContextConfig(requestContext: RequestContext!): CodebaseContextConfigResult!
 
   """
   Returns the model choices available on the free tier without requiring
@@ -2934,7 +2573,6 @@ type RootQuery {
   getCloudEnvironments(requestContext: RequestContext!, sortBy: CloudEnvironmentSortBy): GetCloudEnvironmentsResult!
   getIntegrationsUsingEnvironment(input: GetIntegrationsUsingEnvironmentInput!, requestContext: RequestContext!): GetIntegrationsUsingEnvironmentResult!
   getOAuthConnectTxStatus(input: GetOAuthConnectTxStatusInput!, requestContext: RequestContext!): GetOAuthConnectTxStatusResult!
-  getRelevantFragments(input: GetRelevantFragmentsInput!, requestContext: RequestContext!): GetRelevantFragmentsResult!
 
   """
   Retrieve managed secrets that serve as authentication credentials for the given harness,
@@ -2950,17 +2588,12 @@ type RootQuery {
   listWarpDevImages: ListWarpDevImagesResult!
   managedSecrets(input: ManagedSecretsInput!, requestContext: RequestContext!): ManagedSecretsResult!
   pricingInfo(requestContext: RequestContext!): PricingInfoResult!
-  rerankFragments(input: RerankFragmentsInput!, requestContext: RequestContext!): RerankFragmentsResult!
 
   """Retrieve execution history for a scheduled agent."""
   scheduledAgentHistory(input: ScheduledAgentHistoryInput!, requestContext: RequestContext!): ScheduledAgentHistoryResult!
   simpleIntegrations(input: SimpleIntegrationsInput!, requestContext: RequestContext!): SimpleIntegrationsResult!
   suggestCloudEnvironmentImage(input: SuggestCloudEnvironmentImageInput!, requestContext: RequestContext!): SuggestCloudEnvironmentImageResult!
 
-  """
-  Syncs the client merkle tree with the server merkle tree, returning the nodes that have changed.
-  """
-  syncMerkleTree(input: SyncMerkleTreeInput!, requestContext: RequestContext!): SyncMerkleTreeResult!
 
   """
   Fetch attachments for a task.
@@ -3059,41 +2692,6 @@ type SecretRefOutput {
   name: String!
 }
 
-input SendOnboardingSurveyResponsesInput {
-  responses: [OnboardingSurveyResponse!]!
-}
-
-type SendOnboardingSurveyResponsesOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union SendOnboardingSurveyResponsesResult = SendOnboardingSurveyResponsesOutput | UserFacingError
-
-"""sendReferralInviteEmails is equivalent to sendInvite in v1."""
-input SendReferralInviteEmailsInput {
-  emails: [String!]!
-}
-
-type SendReferralInviteEmailsOutput implements Response {
-  responseContext: ResponseContext!
-  successfulEmails: [String!]!
-}
-
-union SendReferralInviteEmailsResult = SendReferralInviteEmailsOutput | UserFacingError
-
-input SendTeamInviteEmailInput {
-  email: String!
-  teamUid: ID!
-}
-
-type SendTeamInviteEmailOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union SendTeamInviteEmailResult = SendTeamInviteEmailOutput | UserFacingError
-
 enum SerializedBlockFormat {
   JSON_V1
 }
@@ -3134,18 +2732,6 @@ type SessionSharingPolicy {
   maxSessionBytesSize: Int!
 }
 
-input SetIsInviteLinkEnabledInput {
-  newValue: Boolean!
-  teamUid: ID!
-}
-
-type SetIsInviteLinkEnabledOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union SetIsInviteLinkEnabledResult = SetIsInviteLinkEnabledOutput | UserFacingError
-
 input SetObjectLinkPermissionsInput {
   accessLevel: AccessLevel!
   uid: ID!
@@ -3157,31 +2743,6 @@ type SetObjectLinkPermissionsOutput implements Response {
 }
 
 union SetObjectLinkPermissionsResult = SetObjectLinkPermissionsOutput | UserFacingError
-
-input SetTeamDiscoverabilityInput {
-  discoverable: Boolean!
-  teamUid: ID!
-}
-
-type SetTeamDiscoverabilityOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union SetTeamDiscoverabilityResult = SetTeamDiscoverabilityOutput | UserFacingError
-
-input SetTeamMemberRoleInput {
-  role: MembershipRole!
-  teamUid: ID!
-  userUid: ID!
-}
-
-type SetTeamMemberRoleOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union SetTeamMemberRoleResult = SetTeamMemberRoleOutput | UserFacingError
 
 type SetUserIsOnboardedOutput implements Response {
   responseContext: ResponseContext!
@@ -3330,29 +2891,6 @@ type SuggestCloudEnvironmentImageOutput implements Response {
 }
 
 union SuggestCloudEnvironmentImageResult = SuggestCloudEnvironmentImageAuthRequiredOutput | SuggestCloudEnvironmentImageOutput | UserFacingError
-
-"""Structured survey responses input with type-safe fields per question"""
-input SurveyResponsesInput {
-  ACQUISITION_CHANNEL: AcquisitionChannelQuestionResponseInput
-  ROLE: RoleQuestionResponseInput
-  USAGE_PLAN: UsagePlanQuestionResponseInput
-}
-
-type SyncMerkleTreeError {
-  error: String!
-}
-
-input SyncMerkleTreeInput {
-  embeddingConfig: EmbeddingConfig!
-  hashedNodes: [NodeHash!]!
-}
-
-type SyncMerkleTreeOutput implements Response {
-  changedNodes: [NodeHash!]!
-  responseContext: ResponseContext!
-}
-
-union SyncMerkleTreeResult = SyncMerkleTreeError | SyncMerkleTreeOutput | UserFacingError
 
 """
 Error type for when a user violates terms of service, typically flagged by fraud detection.
@@ -3649,17 +3187,6 @@ type TransferNotebookOwnerOutput implements Response {
 
 union TransferNotebookOwnerResult = TransferNotebookOwnerOutput | UserFacingError
 
-input TransferTeamOwnershipInput {
-  newOwnerEmail: String!
-}
-
-type TransferTeamOwnershipOutput implements Response {
-  responseContext: ResponseContext!
-  success: Boolean!
-}
-
-union TransferTeamOwnershipResult = TransferTeamOwnershipOutput | UserFacingError
-
 input TransferWorkflowOwnerInput {
   owner: Owner!
   uid: ID!
@@ -3808,33 +3335,6 @@ type UpdateManagedSecretOutput implements Response {
 
 union UpdateManagedSecretResult = UpdateManagedSecretOutput | UserFacingError
 
-type UpdateMerkleTreeError {
-  error: String!
-}
-
-input UpdateMerkleTreeInput {
-  embeddingConfig: EmbeddingConfig!
-  nodes: [MerkleTreeNode!]!
-}
-
-type UpdateMerkleTreeNodeResult {
-  """The hash of the intermediate Merkle tree node that was inserted."""
-  hash: NodeHash!
-
-  """
-  Whether the node was successfully inserted. Insertion may fail if a node's children do not
-  exist.
-  """
-  success: Boolean!
-}
-
-type UpdateMerkleTreeOutput implements Response {
-  responseContext: ResponseContext!
-  results: [UpdateMerkleTreeNodeResult!]!
-}
-
-union UpdateMerkleTreeResult = UpdateMerkleTreeError | UpdateMerkleTreeOutput | UserFacingError
-
 input UpdateNotebookEditAccessInput {
   uid: ID!
 }
@@ -3878,23 +3378,6 @@ type UpdateObjectGuestsOutput implements Response {
 }
 
 union UpdateObjectGuestsResult = UpdateObjectGuestsOutput | UserFacingError
-
-"""Input for updating onboarding survey status"""
-input UpdateOnboardingSurveyStatusInput {
-  responses: SurveyResponsesInput
-  status: OnboardingSurveyStatus!
-}
-
-"""
-Output for updating onboarding survey status - returns the updated status
-"""
-type UpdateOnboardingSurveyStatusOutput implements Response {
-  responseContext: ResponseContext!
-  status: OnboardingSurveyStatus!
-}
-
-"""Union result for updating onboarding survey status"""
-union UpdateOnboardingSurveyStatusResult = UpdateOnboardingSurveyStatusOutput | UserFacingError
 
 input UpdateUserSettingsInput {
   cloudConversationStorageEnabled: Boolean
@@ -4039,21 +3522,6 @@ type UsageEntry {
   usageSource: AICreditsUsageSource!
 }
 
-"""Usage plan question response input"""
-input UsagePlanQuestionResponseInput {
-  answer: UsagePlanSurveyResponse!
-  details: String
-}
-
-"""Usage plan options for onboarding survey responses"""
-enum UsagePlanSurveyResponse {
-  AI_CODE_PRODUCTION
-  AI_PERSONAL_PROJECTS
-  EXPLORING_TOOL
-  OTHER
-  REPLACE_TERMINAL
-}
-
 """
 Granularity at which a user can see AI usage across their team. Non-admins
 always collapse to OWN_ONLY regardless of tier.
@@ -4080,7 +3548,6 @@ type User {
   billingMetadata: BillingMetadata
   blocks: [Block!]!
   bonusGrants: [BonusGrant!]!
-  completedOzWebappFtue: Boolean!
 
   """
   Returns a history of user's conversation usage data over the past N days
@@ -4113,9 +3580,7 @@ type User {
   isOnboarded: Boolean!
   llms: FeatureModelChoice!
   managedSecrets: ManagedSecretConfig
-  onboardingSurveyStatus: OnboardingSurveyStatus
   profile: FirebaseProfile!
-  referrals: ReferralInfo!
   requestLimitInfo: RequestLimitInfo!
 
   """
