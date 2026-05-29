@@ -585,10 +585,9 @@ jobs:
         run: |
           diff -u old-schema.rs <(diesel print-schema --database-url="test.sqlite")
 
-      - name: Revert and rerun migrations
+      - name: Redo latest migration
         run: |
-          diesel migration revert --all --database-url="test.sqlite" --migration-dir="crates/persistence/migrations"
-          diesel migration run --database-url="test.sqlite" --migration-dir="crates/persistence/migrations"
+          diesel migration redo --database-url="test.sqlite" --migration-dir="crates/persistence/migrations" --locked-schema
 
   terminal-smoke:
     name: Terminal smoke tests
