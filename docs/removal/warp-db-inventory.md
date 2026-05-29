@@ -66,6 +66,27 @@ selection. They should not be dropped in the feature-removal pass.
 | `user_profiles` | Shared identity metadata cached for workspace and collaboration features | `2023-08-07-205653_add_user_profiles_table` |
 | `welcome_panes` | Startup/welcome pane restoration, not one of the removed surfaces | `2025-08-05-134035_add_data_to_welcome_panes` |
 
+### Feature-owned columns embedded in shared tables
+
+These columns look feature-owned, but they are embedded in otherwise shared terminal, window,
+workspace, or command tables. They should only be dropped after the corresponding runtime readers
+and writers are removed and covered by terminal restoration tests.
+
+| DB object | Surface | Classification | Primary references |
+| --- | --- | --- | --- |
+| `blocks.ai_metadata` | AI / Agents | Risky embedded column on terminal command blocks; shared-session viewer still reconstructs command metadata from it | `2024-09-04-220259_add_blocks_ai_metadata`, `app/src/terminal/shared_session/viewer/event_loop.rs` |
+| `blocks.agent_view_visibility` | Agents | Risky embedded column on terminal command blocks; active agent-view restore code still reads/writes it | `2026-01-15-163534-0000_add_agent_view_visibility_to_blocks`, `app/src/persistence/block_list.rs` |
+| `commands.is_agent_executed` | Agents | Risky embedded column on terminal command history; keep until command-history readers no longer expose agent execution state | `2026-03-13-000000_add_is_agent_executed_to_commands`, `app/src/persistence/commands.rs` |
+| `terminal_panes.conversation_ids` | AI / Agents | Risky embedded column on terminal pane restoration; active terminal pane snapshots still carry conversation restore IDs | `2025-11-05-220642_add_convo_id_terminal_panes`, `app/src/pane_group/pane/terminal_pane.rs` |
+| `terminal_panes.active_conversation_id` | AI / Agents | Risky embedded column on terminal pane restoration; active terminal view code still tracks the selected conversation | `2026-02-09-024900_add_active_conversation_id_to_terminal_panes`, `app/src/pane_group/mod.rs` |
+| `terminal_panes.llm_model_override` | AI / Agents | Risky embedded column on terminal pane restoration; model override state is still in terminal pane schema | `2025-08-20-113907_add_llm_model_override_to_terminal_panes`, `crates/persistence/src/schema.rs` |
+| `windows.warp_ai_width` | AI | Risky embedded window-layout column; window restoration table is terminal-critical | `2023-03-21-191945_add_persisted_widths_for_warp_drive_etc`, `crates/persistence/src/schema.rs` |
+| `windows.voltron_width` | AI / Agents | Risky embedded window-layout column; window restoration table is terminal-critical | `2023-03-21-191945_add_persisted_widths_for_warp_drive_etc`, `crates/persistence/src/schema.rs` |
+| `windows.warp_drive_index_width` | WarpDrive | Risky embedded window-layout column; window restoration table is terminal-critical | `2023-03-21-191945_add_persisted_widths_for_warp_drive_etc`, `crates/persistence/src/schema.rs` |
+| `windows.agent_management_filters` | Agents | Risky embedded window-layout column; active workspace view still initializes agent-management UI from it | `2026-01-06-113440-0000_add_agent_management_filters_to_windows`, `app/src/workspace/view.rs` |
+| `notebooks.ai_document_id` | AI / Agents | Unknown/risky because notebooks are not fully feature-owned and still share cloud-object flows | `2025-10-31-115050_add_ai_document_id_to_notebooks`, `app/src/ai/document/ai_document_model.rs` |
+| `teams.billing_metadata_json` | Teams / billing | Shared/risky because `teams` participates in workspace ownership and shared-session policy checks | `2026-02-18-021000_add_billing_metadata_to_teams`, `app/src/workspaces/user_workspaces.rs` |
+
 ### Unknown or risky
 
 These objects have meaningful coupling outside the explicit removal list, or their ownership is
@@ -126,11 +147,26 @@ The safe next step is to finish code-path removal first, then add a dedicated no
 compatibility migration only if a later stage needs to preserve old SQLite files while making the
 feature tables inert.
 
+## Verification
+
+- `diesel migration run --database-url /tmp/camael-stage6.sqlite --migration-dir crates/persistence/migrations --locked-schema`
+  passed on a disposable SQLite database.
+- `diesel migration redo --database-url /tmp/camael-stage6-latest-redo.sqlite --migration-dir crates/persistence/migrations --locked-schema`
+  passed for the latest migration after applying all migrations to a disposable SQLite database.
+- `diesel migration redo --all --database-url /tmp/camael-stage6.sqlite --migration-dir crates/persistence/migrations --locked-schema`
+  failed on historical migration `2024-12-25-215548_drop_server_id_from_tables` because its down
+  migration runs `ALTER TABLE teams ADD COLUMN server_id BIGINTEGER UNIQUE`, which SQLite rejects
+  with `Cannot add a UNIQUE column`. This is pre-existing migration reversibility debt and was not
+  introduced by this stage.
+
 ## Recommended Later Drop Order
 
 1. Remove live code references to AI/agent pane restoration and agent conversation persistence.
-2. Remove live code references to team settings and member caches if workspace ownership can be
+2. Remove live code references to feature-owned columns embedded in shared terminal/window tables,
+   then cover terminal session restoration and shared-session replay with tests.
+3. Remove live code references to team settings and member caches if workspace ownership can be
    preserved without them.
-3. Add a compatibility migration only if old app-state restoration would otherwise try to read the
+4. Add a compatibility migration only if old app-state restoration would otherwise try to read the
    soon-to-be-removed tables.
-4. Drop feature-owned tables and triggers in a later destructive schema stage.
+5. Drop feature-owned tables, triggers, indexes, and proven-safe embedded columns in a later
+   destructive schema stage.
