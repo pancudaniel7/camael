@@ -160,18 +160,19 @@ impl LeafContents {
             LeafContents::NetworkLog
             // Environment management panes are opened on-demand via workspace
             // actions and have no persistable state.
-            | LeafContents::EnvironmentManagement(_) => false,
+            | LeafContents::EnvironmentManagement(_)
+            // Deleted AI/agent panes are not restored in the terminal-only surface.
+            | LeafContents::AIDocument(_)
+            | LeafContents::AIFact(_)
+            | LeafContents::AmbientAgent(_) => false,
             LeafContents::Terminal(_)
             | LeafContents::Notebook(_)
-            | LeafContents::AIDocument(_)
             | LeafContents::Code(_)
             | LeafContents::EnvVarCollection(_)
             | LeafContents::Workflow(_)
             | LeafContents::Settings(_)
-            | LeafContents::AIFact(_)
             | LeafContents::ExecutionProfileEditor
             | LeafContents::CodeReview(_)
-            | LeafContents::AmbientAgent(_)
             | LeafContents::Welcome { .. }
             | LeafContents::GetStarted => true,
         }

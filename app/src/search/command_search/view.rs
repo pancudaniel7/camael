@@ -8,7 +8,6 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use pathfinder_color::ColorU;
 use pathfinder_geometry::vector::Vector2F;
-use warp_core::features::FeatureFlag;
 use warpui::accessibility::{AccessibilityContent, WarpA11yRole};
 use warpui::elements::{
     resizable_state_handle, Align, AnchorPair, Border, ConstrainedBox, Container, CornerRadius,
@@ -24,11 +23,9 @@ use warpui::{
     ViewContext, ViewHandle, WeakViewHandle,
 };
 
-use super::ai_queries::AIQueriesDataSource;
 use super::env_var_collections::EnvVarCollectionDataSource;
 use super::history::history_data_source_for_session;
 use super::notebooks::notebooks_data_source;
-use super::warp_ai::WarpAIDataSource;
 use super::workflows::{cloud_workflows_data_source, WorkflowsDataSource};
 use super::zero_state::{CommandSearchZeroStateEvent, CommandSearchZeroStateView};
 use crate::ai_assistant::execution_context::WarpAiExecutionContext;
@@ -49,7 +46,6 @@ use crate::send_telemetry_from_ctx;
 use crate::server::ids::ServerId;
 use crate::server::server_api::ai::AIClient;
 use crate::server::telemetry::TelemetryEvent;
-use crate::settings::AISettings;
 use crate::terminal::input::MenuPositioning;
 use crate::terminal::model::session::SessionId;
 use crate::terminal::resizable_data::{ModalType, ResizableData, DEFAULT_UNIVERSAL_SEARCH_WIDTH};
@@ -120,7 +116,6 @@ pub struct CommandSearchView {
     handle: WeakViewHandle<Self>,
     menu_positioning: MenuPositioning,
     auth_state: Arc<AuthState>,
-    ai_client: Arc<dyn AIClient>,
     state: CommandSearchViewState,
     visible_results_range_sender: Sender<Range<usize>>,
     resizable_state_handle: ResizableStateHandle,
@@ -131,7 +126,7 @@ pub struct CommandSearchView {
 }
 
 impl CommandSearchView {
-    pub fn new(ai_client: Arc<dyn AIClient>, ctx: &mut ViewContext<Self>) -> Self {
+    pub fn new(_ai_client: Arc<dyn AIClient>, ctx: &mut ViewContext<Self>) -> Self {
         let search_bar_state =
             ctx.add_model(|_| SearchBarState::new(SearchResultOrdering::BottomUp));
 
@@ -195,7 +190,6 @@ impl CommandSearchView {
 
         Self {
             auth_state: AuthStateProvider::as_ref(ctx).get().clone(),
-            ai_client,
             zero_state_handle,
             menu_positioning: Default::default(),
             handle: ctx.handle(),
@@ -227,22 +221,7 @@ impl CommandSearchView {
             // Add data sources in lowest->highest priority order.  If results from two
             // data sources produce the same ranking score, the data source added first
             // will show up higher in the list (i.e.: further away from the input).
-            if AISettings::as_ref(ctx).is_any_ai_enabled(ctx) {
-                mixer.add_sync_source(
-                    WarpAIDataSource::new(self.ai_client.clone(), None),
-                    HashSet::from([QueryFilter::NaturalLanguage]),
-                );
-                mixer.add_async_source(
-                    WarpAIDataSource::new(self.ai_client.clone(), ai_execution_context),
-                    HashSet::from([QueryFilter::NaturalLanguage]),
-                    AddAsyncSourceOptions {
-                        debounce_interval: Some(Duration::from_millis(50)),
-                        run_in_zero_state: false,
-                        run_when_unfiltered: false,
-                    },
-                    ctx,
-                );
-            }
+            let _ = ai_execution_context;
 
             if WarpDriveSettings::is_warp_drive_enabled(ctx) {
                 mixer.add_sync_source(
@@ -250,14 +229,9 @@ impl CommandSearchView {
                     HashSet::from([QueryFilter::Workflows]),
                 );
 
-                let mut workflows_filters = HashSet::from([QueryFilter::Workflows]);
-                if AISettings::as_ref(ctx).is_any_ai_enabled(ctx) {
-                    workflows_filters.insert(QueryFilter::AgentModeWorkflows);
-                }
-
                 mixer.add_async_source(
                     cloud_workflows_data_source(),
-                    workflows_filters,
+                    HashSet::from([QueryFilter::Workflows]),
                     AddAsyncSourceOptions {
                         debounce_interval: Some(Duration::from_millis(50)),
                         run_in_zero_state: true,
@@ -284,14 +258,6 @@ impl CommandSearchView {
                 mixer.add_sync_source(
                     EnvVarCollectionDataSource::new(),
                     HashSet::from([QueryFilter::EnvironmentVariables]),
-                );
-            }
-
-            if FeatureFlag::AgentMode.is_enabled() && AISettings::as_ref(ctx).is_any_ai_enabled(ctx)
-            {
-                mixer.add_sync_source(
-                    AIQueriesDataSource::new(),
-                    HashSet::from([QueryFilter::PromptHistory]),
                 );
             }
 

@@ -13,6 +13,7 @@ use super::{
 use crate::ai::predict::prompt_suggestions::ACCEPT_PROMPT_SUGGESTION_KEYBINDING;
 use crate::channel::{Channel, ChannelState};
 use crate::features::FeatureFlag;
+use crate::product_surfaces;
 use crate::server::telemetry::{InteractionSource, ToggleBlockFilterSource};
 use crate::settings_view::flags;
 use crate::terminal::input::{
@@ -763,7 +764,9 @@ pub fn init(app: &mut AppContext) {
                 ),
             TerminalAction::ContextMenu(ContextMenuAction::AskAI(AskAISource::SelectedBlocks)),
         )
-        .with_enabled(|| FeatureFlag::AgentMode.is_enabled())
+        .with_enabled(|| {
+            product_surfaces::agents_surface_enabled() && FeatureFlag::AgentMode.is_enabled()
+        })
         .with_custom_action(CustomAction::AttachSelectionAsAgentModeContext)
         .with_group(bindings::BindingGroup::WarpAi.as_str())
         // When possible, prioritize the text selection action over attaching a block as
@@ -786,7 +789,9 @@ pub fn init(app: &mut AppContext) {
                 AskAISource::SelectedTerminalText,
             )),
         )
-        .with_enabled(|| FeatureFlag::AgentMode.is_enabled())
+        .with_enabled(|| {
+            product_surfaces::agents_surface_enabled() && FeatureFlag::AgentMode.is_enabled()
+        })
         .with_custom_action(CustomAction::AttachSelectionAsAgentModeContext)
         .with_group(bindings::BindingGroup::WarpAi.as_str())
         .with_context_predicate(
@@ -803,7 +808,9 @@ pub fn init(app: &mut AppContext) {
             "Ask Warp AI about Selection",
             TerminalAction::ContextMenu(ContextMenuAction::AskAI(AskAISource::SelectedBlockOrText)),
         )
-        .with_enabled(|| !FeatureFlag::AgentMode.is_enabled())
+        .with_enabled(|| {
+            product_surfaces::agents_surface_enabled() && !FeatureFlag::AgentMode.is_enabled()
+        })
         .with_custom_action(CustomAction::AttachSelectionAsAgentModeContext)
         .with_group(bindings::BindingGroup::WarpAi.as_str())
         .with_context_predicate(
@@ -821,7 +828,9 @@ pub fn init(app: &mut AppContext) {
             "Ask Warp AI about last block",
             TerminalAction::ContextMenu(ContextMenuAction::AskAI(AskAISource::LastBlock)),
         )
-        .with_enabled(|| !FeatureFlag::AgentMode.is_enabled())
+        .with_enabled(|| {
+            product_surfaces::agents_surface_enabled() && !FeatureFlag::AgentMode.is_enabled()
+        })
         .with_key_binding("ctrl-shift->")
         .with_group(bindings::BindingGroup::WarpAi.as_str())
         .with_context_predicate(
@@ -832,7 +841,9 @@ pub fn init(app: &mut AppContext) {
             "Ask Warp AI",
             TerminalAction::ContextMenu(ContextMenuAction::AskAI(AskAISource::SelectedInputText)),
         )
-        .with_enabled(|| !FeatureFlag::AgentMode.is_enabled())
+        .with_enabled(|| {
+            product_surfaces::agents_surface_enabled() && !FeatureFlag::AgentMode.is_enabled()
+        })
         .with_group(bindings::BindingGroup::WarpAi.as_str())
         .with_key_binding("ctrl-shift-space")
         .with_context_predicate(id!("Input") & id!(flags::IS_ANY_AI_ENABLED)),
@@ -965,7 +976,8 @@ pub fn init(app: &mut AppContext) {
         )
         .with_custom_action(CustomAction::ShareCurrentSession)
         .with_enabled(|| {
-            FeatureFlag::CreatingSharedSessions.is_enabled()
+            product_surfaces::session_sharing_surface_enabled()
+                && FeatureFlag::CreatingSharedSessions.is_enabled()
                 && ContextFlag::CreateSharedSession.is_enabled()
         }),
         EditableBinding::new(

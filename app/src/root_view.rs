@@ -330,7 +330,9 @@ pub fn init(app: &mut AppContext) {
     );
     app.add_action("root_view:toggle_fullscreen", RootView::toggle_fullscreen);
 
-    if FeatureFlag::ViewingSharedSessions.is_enabled() {
+    if product_surfaces::session_sharing_surface_enabled()
+        && FeatureFlag::ViewingSharedSessions.is_enabled()
+    {
         app.add_global_action(
             "root_view:join_shared_session",
             open_shared_session_as_viewer,
@@ -1040,7 +1042,10 @@ fn open_linear_issue_work_in_new_window(args: &LinearIssueWork, ctx: &mut AppCon
 
 fn open_warp_drive_object(arg: &OpenWarpDriveObjectArgs, ctx: &mut AppContext) {
     if !product_surfaces::warp_drive_surface_enabled() {
-        log::info!("Ignoring removed Warp Drive object intent for {:?}", arg.object_type);
+        log::info!(
+            "Ignoring removed Warp Drive object intent for {:?}",
+            arg.object_type
+        );
         return;
     }
 
@@ -2542,7 +2547,10 @@ impl RootView {
         ctx: &mut ViewContext<Self>,
     ) -> bool {
         if !product_surfaces::warp_drive_surface_enabled() {
-            log::info!("Ignoring removed Warp Drive object intent for {:?}", arg.object_type);
+            log::info!(
+                "Ignoring removed Warp Drive object intent for {:?}",
+                arg.object_type
+            );
             return false;
         }
 

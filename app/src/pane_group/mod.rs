@@ -101,6 +101,7 @@ use crate::pane_group::pane::terminal_pane::{
 use crate::pane_group::pane::welcome_pane::WelcomePane;
 use crate::pane_group::pane::ActionOrigin;
 use crate::persistence::ModelEvent;
+use crate::product_surfaces;
 use crate::quit_warning::UnsavedStateSummary;
 use crate::resource_center::{
     mark_feature_used_and_write_to_user_defaults, Tip, TipAction, TipsCompleted,
@@ -8459,7 +8460,8 @@ impl View for PaneGroup {
         if self.terminal_with_open_share_block_modal.is_some() {
             stack
                 .add_child(Clipped::new(ChildView::new(&self.share_block_modal).finish()).finish());
-        } else if FeatureFlag::CreatingSharedSessions.is_enabled()
+        } else if product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::CreatingSharedSessions.is_enabled()
             && self.terminal_with_open_share_session_modal.is_some()
         {
             stack.add_child(ChildView::new(&self.share_session_modal).finish());

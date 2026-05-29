@@ -15,3 +15,11 @@ pub(crate) fn sign_in_ui_enabled() -> bool {
 pub(crate) fn sign_up_ui_enabled() -> bool {
     false
 }
+
+pub(crate) fn session_sharing_surface_enabled() -> bool {
+    false
+}
+
+pub(crate) fn metrics_surface_enabled() -> bool {
+    false
+}

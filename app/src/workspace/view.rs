@@ -4390,6 +4390,10 @@ impl Workspace {
     }
 
     fn toggle_ai_assistant_panel(&mut self, ctx: &mut ViewContext<Self>) {
+        if !product_surfaces::agents_surface_enabled() {
+            return;
+        }
+
         // Now that the user has interacted with the panel, we can close
         // the dialogue and mark it as dismissed.
         if self.should_show_ai_assistant_warm_welcome {
@@ -10443,7 +10447,8 @@ impl Workspace {
             return false;
         }
         // TODO: remove session sharing flag check when long-running commands are included
-        FeatureFlag::CreatingSharedSessions.is_enabled()
+        product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::CreatingSharedSessions.is_enabled()
             && ContextFlag::CreateSharedSession.is_enabled()
             && *SessionSettings::as_ref(ctx).should_confirm_close_session
     }
@@ -21938,6 +21943,9 @@ impl TypedActionView for Workspace {
                 }
             }
             ToggleAIAssistant => {
+                if !product_surfaces::agents_surface_enabled() {
+                    return;
+                }
                 self.toggle_ai_assistant_panel(ctx);
                 send_telemetry_from_ctx!(
                     TelemetryEvent::ToggleWarpAI {
@@ -21947,6 +21955,9 @@ impl TypedActionView for Workspace {
                 );
             }
             ClickedAIAssistantIcon => {
+                if !product_surfaces::agents_surface_enabled() {
+                    return;
+                }
                 if !FeatureFlag::AgentMode.is_enabled() {
                     self.toggle_ai_assistant_panel(ctx);
                     if self.current_workspace_state.is_ai_assistant_panel_open {
@@ -21964,6 +21975,9 @@ impl TypedActionView for Workspace {
                 ctx.notify();
             }
             ClickedAIAssistantWarmWelcome => {
+                if !product_surfaces::agents_surface_enabled() {
+                    return;
+                }
                 self.toggle_ai_assistant_panel(ctx);
                 send_telemetry_from_ctx!(
                     TelemetryEvent::OpenedWarpAI {
@@ -22174,7 +22188,9 @@ impl TypedActionView for Workspace {
                 ctx.dispatch_global_action("app:undo_close", ());
             }
             OpenShareSessionModal(index) => {
-                self.open_share_session_modal(*index, ctx);
+                if product_surfaces::session_sharing_surface_enabled() {
+                    self.open_share_session_modal(*index, ctx);
+                }
             }
             StopSharingSessionFromTabMenu { terminal_view_id } => {
                 self.stop_sharing_session(terminal_view_id, SharedSessionActionSource::Tab, ctx)
@@ -24127,7 +24143,8 @@ impl View for Workspace {
             stack.add_child(ChildView::new(create_auth_secret_modal).finish());
         }
 
-        if FeatureFlag::CreatingSharedSessions.is_enabled()
+        if product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::CreatingSharedSessions.is_enabled()
             && ContextFlag::CreateSharedSession.is_enabled()
             && self
                 .current_workspace_state

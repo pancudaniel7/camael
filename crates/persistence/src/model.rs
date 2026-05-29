@@ -9,15 +9,14 @@ use warp_multi_agent_api::response_event::stream_finished;
 use warp_multi_agent_api::{self as api};
 
 use super::schema::{
-    active_mcp_servers, agent_conversations, agent_tasks, ai_document_panes, ai_memory_panes,
-    ambient_agent_panes, app, blocks, cloud_objects_refreshes, code_pane_tabs, code_panes,
+    active_mcp_servers, app, blocks, cloud_objects_refreshes, code_pane_tabs, code_panes,
     code_review_panes, commands, current_user_information, env_var_collection_panes, folders,
     generic_string_objects, ignored_suggestions, mcp_environment_variables,
     mcp_server_installations, mcp_server_panes, notebook_panes, notebooks, object_actions,
     object_metadata, object_permissions, pane_branches, pane_leaves, pane_nodes, panels,
-    project_rules, projects, server_experiments, settings_panes, tabs, team_members, team_settings,
-    teams, terminal_panes, user_profiles, welcome_panes, windows, workflow_panes, workflows,
-    workspace_language_server, workspace_metadata, workspace_teams, workspaces,
+    project_rules, projects, server_experiments, settings_panes, tabs, teams, terminal_panes,
+    user_profiles, welcome_panes, windows, workflow_panes, workflows, workspace_language_server,
+    workspace_metadata, workspace_teams, workspaces,
 };
 
 #[derive(Insertable)]
@@ -119,25 +118,6 @@ pub struct NewTeam {
     pub billing_metadata_json: Option<String>,
 }
 
-#[derive(Identifiable, Queryable)]
-#[diesel(table_name = team_members)]
-pub struct TeamMemberRow {
-    pub id: i32,
-    pub team_id: i32,
-    pub user_uid: String,
-    pub email: String,
-    pub role: String,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = team_members)]
-pub struct NewTeamMember {
-    pub team_id: i32,
-    pub user_uid: String,
-    pub email: String,
-    pub role: String,
-}
-
 #[derive(Identifiable, Insertable, Queryable)]
 pub struct Workspace {
     pub id: i32,
@@ -152,20 +132,6 @@ pub struct NewWorkspace {
     pub name: String,
     pub server_uid: String,
     pub is_selected: bool,
-}
-
-#[derive(Identifiable, Insertable, Queryable)]
-pub struct TeamSetting {
-    pub id: i32,
-    pub team_id: i32,
-    pub settings_json: String,
-}
-
-#[derive(Insertable, AsChangeset)]
-#[diesel(table_name = team_settings)]
-pub struct NewTeamSettings {
-    pub team_id: i32,
-    pub settings_json: String,
 }
 
 #[derive(Clone, Identifiable, Insertable, Queryable, AsChangeset)]
@@ -476,16 +442,6 @@ pub struct WelcomePane {
     pub startup_directory: Option<String>,
 }
 
-/// Maps to the `ai_memory_panes` table
-/// (where table name is historical and not worth a migration to change).
-#[derive(Identifiable, Queryable, Selectable)]
-#[diesel(table_name = ai_memory_panes)]
-#[diesel(primary_key(id))]
-pub struct AIFactPane {
-    pub id: i32,
-    pub kind: String,
-}
-
 /// Subset of the [`terminal_panes`] table needed to retrieve per-session block lists.
 ///
 /// The true primary key of the table is [`terminal_panes::id`]. However, Diesel's associations API
@@ -643,12 +599,6 @@ pub struct NewSettingsPane {
 }
 
 #[derive(Insertable)]
-#[diesel(table_name = ai_memory_panes)]
-pub struct NewAIFactPane {
-    pub id: i32,
-}
-
-#[derive(Insertable)]
 #[diesel(table_name = mcp_server_panes)]
 pub struct NewMCPServerPane {
     pub id: i32,
@@ -659,24 +609,6 @@ pub struct NewMCPServerPane {
 pub struct NewWelcomePane {
     pub id: i32,
     pub startup_directory: Option<String>,
-}
-
-#[derive(Identifiable, Queryable, Selectable)]
-#[diesel(table_name = ambient_agent_panes)]
-#[diesel(primary_key(id))]
-pub struct AmbientAgentPane {
-    pub id: i32,
-    pub kind: String,
-    pub uuid: Vec<u8>,
-    pub task_id: Option<String>,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = ambient_agent_panes)]
-pub struct NewAmbientAgentPane {
-    pub id: i32,
-    pub uuid: Vec<u8>,
-    pub task_id: Option<String>,
 }
 
 #[derive(Insertable)]
@@ -888,48 +820,12 @@ pub struct NewActiveMCPServer {
     pub mcp_server_uuid: String,
 }
 
-// Queryable structs for reading from the database
-#[derive(Debug, PartialEq, Default, Queryable, Selectable, Clone)]
-#[diesel(table_name = agent_conversations)]
-#[diesel(primary_key(id))]
+#[derive(Debug, PartialEq, Default, Clone)]
 pub struct AgentConversationRecord {
     pub id: i32,
     pub conversation_id: String,
     pub conversation_data: String,
     pub last_modified_at: NaiveDateTime,
-}
-
-#[derive(Debug, PartialEq, Queryable, Selectable)]
-#[diesel(table_name = agent_tasks)]
-#[diesel(primary_key(id))]
-pub struct AgentTaskRecord {
-    pub id: i32,
-    pub conversation_id: String,
-    pub task_id: String,
-    pub task: Vec<u8>,
-    pub last_modified_at: NaiveDateTime,
-}
-
-#[derive(Debug, PartialEq, Queryable, Selectable, Clone)]
-#[diesel(table_name = ai_document_panes)]
-#[diesel(primary_key(id))]
-pub struct AIDocumentPane {
-    pub id: i32,
-    pub kind: String,
-    pub document_id: String,
-    pub version: i32,
-    pub content: Option<String>,
-    pub title: Option<String>,
-}
-
-#[derive(Debug, Insertable)]
-#[diesel(table_name = ai_document_panes)]
-pub struct NewAIDocumentPane {
-    pub id: i32,
-    pub document_id: String,
-    pub version: i32,
-    pub content: Option<String>,
-    pub title: Option<String>,
 }
 
 #[derive(Debug, PartialEq, Default, Clone)]

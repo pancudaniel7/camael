@@ -8,67 +8,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    agent_conversations (id) {
-        id -> Integer,
-        conversation_id -> Text,
-        conversation_data -> Text,
-        last_modified_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    agent_tasks (id) {
-        id -> Integer,
-        conversation_id -> Text,
-        task_id -> Text,
-        task -> Binary,
-        last_modified_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    ai_document_panes (id) {
-        id -> Integer,
-        kind -> Text,
-        document_id -> Text,
-        version -> Integer,
-        content -> Nullable<Text>,
-        title -> Nullable<Text>,
-    }
-}
-
-diesel::table! {
-    ai_memory_panes (id) {
-        id -> Integer,
-        kind -> Text,
-    }
-}
-
-diesel::table! {
-    ai_queries (id) {
-        id -> Integer,
-        exchange_id -> Text,
-        conversation_id -> Text,
-        start_ts -> Timestamp,
-        input -> Text,
-        working_directory -> Nullable<Text>,
-        output_status -> Text,
-        model_id -> Text,
-        planning_model_id -> Text,
-        coding_model_id -> Text,
-    }
-}
-
-diesel::table! {
-    ambient_agent_panes (id) {
-        id -> Integer,
-        kind -> Text,
-        uuid -> Binary,
-        task_id -> Nullable<Text>,
-    }
-}
-
-diesel::table! {
     app (id) {
         id -> Nullable<Integer>,
         active_window_id -> Nullable<Integer>,
@@ -364,24 +303,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    team_members (id) {
-        id -> Integer,
-        team_id -> Integer,
-        user_uid -> Text,
-        email -> Text,
-        role -> Text,
-    }
-}
-
-diesel::table! {
-    team_settings (id) {
-        id -> Integer,
-        team_id -> Integer,
-        settings_json -> Text,
-    }
-}
-
-diesel::table! {
     teams (id) {
         id -> Integer,
         name -> Text,
@@ -501,7 +422,6 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(ambient_agent_panes -> pane_nodes (id));
 diesel::joinable!(app -> windows (active_window_id));
 diesel::joinable!(code_pane_tabs -> code_panes (code_pane_id));
 diesel::joinable!(object_permissions -> object_metadata (object_metadata_id));
@@ -510,12 +430,9 @@ diesel::joinable!(pane_leaves -> pane_nodes (pane_node_id));
 diesel::joinable!(pane_nodes -> tabs (tab_id));
 diesel::joinable!(panels -> tabs (tab_id));
 diesel::joinable!(tabs -> windows (window_id));
-diesel::joinable!(team_members -> teams (team_id));
-diesel::joinable!(team_settings -> teams (team_id));
 diesel::joinable!(workspace_language_server -> workspace_metadata (workspace_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    ambient_agent_panes,
     app,
     pane_branches,
     pane_leaves,
@@ -526,5 +443,4 @@ diesel::allow_tables_to_appear_in_same_query!(
 );
 diesel::allow_tables_to_appear_in_same_query!(code_pane_tabs, code_panes,);
 diesel::allow_tables_to_appear_in_same_query!(object_metadata, object_permissions,);
-diesel::allow_tables_to_appear_in_same_query!(team_members, team_settings, teams,);
 diesel::allow_tables_to_appear_in_same_query!(workspace_language_server, workspace_metadata,);
