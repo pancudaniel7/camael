@@ -38,6 +38,7 @@ use crate::pane_group::pane::view::header::{render_pane_header_draggable, PANE_H
 use crate::pane_group::pane::view::PaneHeaderAction;
 use crate::pane_group::pane::{view, PaneStack};
 use crate::pane_group::{BackingView, SplitPaneState};
+use crate::product_surfaces;
 use crate::settings::app_installation_detection::{
     UserAppInstallDetectionSettings, UserAppInstallStatus,
 };
@@ -703,7 +704,8 @@ impl BackingView for TerminalView {
                         .into_item(),
                 );
             }
-        } else if FeatureFlag::CreatingSharedSessions.is_enabled()
+        } else if product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::CreatingSharedSessions.is_enabled()
             && ContextFlag::CreateSharedSession.is_enabled()
         {
             items.push(

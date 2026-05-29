@@ -146,24 +146,10 @@ pub fn all_events() -> impl Iterator<Item = Box<dyn TelemetryEventDesc>> {
 #[macro_export]
 macro_rules! send_telemetry_from_ctx {
     ($event:expr, $ctx:expr) => {
-        #[allow(unused_imports)]
-        use warp_core::telemetry::TelemetryEvent as _;
-        let event = $event;
-        if event.enablement_state().is_enabled() {
-            let auth_state =
-                <$crate::telemetry::TelemetryContextModel as warpui::SingletonEntity>::handle($ctx)
-                    .as_ref($ctx);
-            let user_id = auth_state.user_id($ctx);
-            let anonymous_id = auth_state.anonymous_id($ctx);
-            warpui::record_telemetry_from_ctx!(
-                user_id,
-                anonymous_id,
-                event.name().into(),
-                event.payload(),
-                event.contains_ugc(),
-                $ctx
-            );
+        if false {
+            let _ = &$event;
         }
+        let _ = &$ctx;
     };
 }
 
@@ -175,24 +161,10 @@ macro_rules! send_telemetry_from_ctx {
 #[macro_export]
 macro_rules! send_telemetry_from_app_ctx {
     ($event:expr, $app_ctx:expr) => {
-        let event = $event;
-        if event.enablement_state().is_enabled() {
-            let auth_state =
-                <$crate::telemetry::TelemetryContextModel as warpui::SingletonEntity>::handle(
-                    $app_ctx,
-                )
-                .as_ref($app_ctx);
-            let user_id = auth_state.user_id($app_ctx.as_ref());
-            let anonymous_id = auth_state.anonymous_id($app_ctx.as_ref());
-            warpui::record_telemetry_on_executor!(
-                user_id,
-                anonymous_id,
-                event.name().into(),
-                event.payload(),
-                event.contains_ugc(),
-                $app_ctx.background_executor()
-            );
+        if false {
+            let _ = &$event;
         }
+        let _ = &$app_ctx;
     };
 }
 

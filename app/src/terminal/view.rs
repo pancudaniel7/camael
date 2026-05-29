@@ -538,9 +538,9 @@ use crate::workspace::{
 use crate::workspaces::user_workspaces::{UserWorkspaces, UserWorkspacesEvent};
 use crate::workspaces::workspace::CustomerType;
 use crate::{
-    report_if_error, safe_error, safe_warn, send_telemetry_from_ctx, send_telemetry_on_executor,
-    send_telemetry_sync_from_ctx, AIAgentActionResultType, AIRequestUsageModel,
-    ActiveSession as WindowActiveSession,
+    product_surfaces, report_if_error, safe_error, safe_warn, send_telemetry_from_ctx,
+    send_telemetry_on_executor, send_telemetry_sync_from_ctx, AIAgentActionResultType,
+    AIRequestUsageModel, ActiveSession as WindowActiveSession,
 };
 
 lazy_static! {
@@ -1433,8 +1433,6 @@ pub enum InputContextMenuAction {
     SelectAll,
     Paste,
     ShowCommandSearch,
-    ShowAICommandSearch,
-    AskWarpAI,
     SaveAsWorkflow,
     ToggleInputHintText,
 }
@@ -1521,8 +1519,6 @@ impl fmt::Debug for InputContextMenuAction {
             SelectAll => f.write_str("SelectAll"),
             Paste => f.write_str("Paste"),
             ShowCommandSearch => f.write_str("CommandSearch"),
-            ShowAICommandSearch => f.write_str("AICommandSearch"),
-            AskWarpAI => f.write_str("AskWarpAI"),
             SaveAsWorkflow => f.write_str("SaveAsWorkflow"),
             ToggleInputHintText => f.write_str("ToggleInputHintText"),
         }
@@ -7957,7 +7953,8 @@ impl TerminalView {
     /// Cancels the active agent conversation via the status bar's Ctrl+C handler.
     /// Includes shared session notification if applicable.
     fn cancel_active_conversation_via_status_bar(&mut self, ctx: &mut ViewContext<Self>) {
-        if FeatureFlag::AgentSharedSessions.is_enabled()
+        if product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::AgentSharedSessions.is_enabled()
             && self
                 .model
                 .lock()
@@ -16039,7 +16036,9 @@ impl TerminalView {
                         ))
                         .into_item(),
                 ];
-                if AISettings::as_ref(ctx).is_any_ai_enabled(ctx) {
+                if product_surfaces::agents_surface_enabled()
+                    && AISettings::as_ref(ctx).is_any_ai_enabled(ctx)
+                {
                     fields.extend([
                         MenuItem::Separator,
                         MenuItemFields::new(if FeatureFlag::AgentMode.is_enabled() {
@@ -16121,7 +16120,8 @@ impl TerminalView {
                 let is_copy_both_disabled =
                     is_copy_commands_disabled && tail_block.output_to_string().trim().is_empty();
 
-                let share_block_label = if FeatureFlag::CreatingSharedSessions.is_enabled()
+                let share_block_label = if product_surfaces::session_sharing_surface_enabled()
+                    && FeatureFlag::CreatingSharedSessions.is_enabled()
                     && ContextFlag::CreateSharedSession.is_enabled()
                 {
                     "Share block..."
@@ -16164,7 +16164,8 @@ impl TerminalView {
                         .into_item(),
                 ];
 
-                if FeatureFlag::CreatingSharedSessions.is_enabled()
+                if product_surfaces::session_sharing_surface_enabled()
+                    && FeatureFlag::CreatingSharedSessions.is_enabled()
                     && ContextFlag::CreateSharedSession.is_enabled()
                 {
                     // Sharing a session from a context menu is disabled for multi block selections, restored blocks, and viewers.
@@ -16194,7 +16195,9 @@ impl TerminalView {
                     );
                 }
 
-                if AISettings::as_ref(ctx).is_any_ai_enabled(ctx) {
+                if product_surfaces::agents_surface_enabled()
+                    && AISettings::as_ref(ctx).is_any_ai_enabled(ctx)
+                {
                     if FeatureFlag::AgentMode.is_enabled() {
                         // We can only attach selected blocks if the input box is visible.
                         if self.is_input_box_visible(&model, ctx) {
@@ -16375,7 +16378,8 @@ impl TerminalView {
                 // If selection is empty, only show non-block related options
                 let mut items = Vec::new();
 
-                if FeatureFlag::CreatingSharedSessions.is_enabled()
+                if product_surfaces::session_sharing_surface_enabled()
+                    && FeatureFlag::CreatingSharedSessions.is_enabled()
                     && ContextFlag::CreateSharedSession.is_enabled()
                 {
                     items.extend(self.session_sharing_context_menu_items(&model, false));
@@ -16844,13 +16848,14 @@ impl TerminalView {
                 .into_item(),
         );
 
-        if FeatureFlag::CreatingSharedSessions.is_enabled()
+        if product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::CreatingSharedSessions.is_enabled()
             && ContextFlag::CreateSharedSession.is_enabled()
         {
             items.extend(self.session_sharing_context_menu_items(&model, false));
         }
 
-        // Section 2: AI Command Search, Ask Warp AI
+        // Section 2: terminal command search
         items.extend([
             MenuItem::Separator,
             MenuItemFields::new("Command search")
@@ -16864,31 +16869,6 @@ impl TerminalView {
                 .with_disabled(is_editor_disabled)
                 .into_item(),
         ]);
-
-        if AISettings::as_ref(ctx).is_any_ai_enabled(ctx) {
-            items.push(
-                MenuItemFields::new("AI command search")
-                    .with_on_select_action(TerminalAction::InputContextMenuItem(
-                        InputContextMenuAction::ShowAICommandSearch,
-                    ))
-                    .with_key_shortcut_label(keybinding_name_to_display_string(
-                        "input:toggle_natural_language_command_search",
-                        ctx,
-                    ))
-                    .with_disabled(is_editor_disabled)
-                    .into_item(),
-            );
-
-            if !selected_input_text.is_empty() && !FeatureFlag::AgentMode.is_enabled() {
-                items.push(
-                    MenuItemFields::new("Ask Warp AI")
-                        .with_on_select_action(TerminalAction::InputContextMenuItem(
-                            InputContextMenuAction::AskWarpAI,
-                        ))
-                        .into_item(),
-                );
-            }
-        }
 
         // Section 3: Teams related
         if !all_current_input_text.is_empty() && WarpDriveSettings::is_warp_drive_enabled(ctx) {
@@ -17065,7 +17045,9 @@ impl TerminalView {
                     .with_key_shortcut_label(Some("⌘-C"))
                     .into_item(),
             );
-            if AISettings::as_ref(ctx).is_any_ai_enabled(ctx) {
+            if product_surfaces::agents_surface_enabled()
+                && AISettings::as_ref(ctx).is_any_ai_enabled(ctx)
+            {
                 menu_items.extend([
                     MenuItem::Separator,
                     MenuItemFields::new(if FeatureFlag::AgentMode.is_enabled() {
@@ -17082,7 +17064,8 @@ impl TerminalView {
             }
         }
 
-        if FeatureFlag::CreatingSharedSessions.is_enabled()
+        if product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::CreatingSharedSessions.is_enabled()
             && ContextFlag::CreateSharedSession.is_enabled()
         {
             menu_items.extend(self.session_sharing_context_menu_items(&model, false));
@@ -18521,13 +18504,6 @@ impl TerminalView {
     fn command_search_from_input(&mut self, ctx: &mut ViewContext<Self>) {
         send_telemetry_from_ctx!(TelemetryEvent::InputCommandSearch, ctx);
         ctx.emit(Event::ShowCommandSearch(Default::default()))
-    }
-
-    fn ai_command_search_from_input(&mut self, ctx: &mut ViewContext<Self>) {
-        self.input.update(ctx, |input, ctx| {
-            input.handle_action(&InputAction::ShowAiCommandSearch, ctx)
-        });
-        send_telemetry_from_ctx!(TelemetryEvent::InputAICommandSearch, ctx);
     }
 
     fn save_as_workflow_from_input(&mut self, ctx: &mut ViewContext<Self>) {
@@ -20975,9 +20951,14 @@ impl TerminalView {
                 ctx.emit(Event::OpenPluginInstructionsPane(*agent, *kind));
             }
             InputEvent::OpenShareSessionModal => {
-                self.open_share_session_modal(SharedSessionActionSource::FooterChip, ctx);
+                if product_surfaces::session_sharing_surface_enabled() {
+                    self.open_share_session_modal(SharedSessionActionSource::FooterChip, ctx);
+                }
             }
             InputEvent::StartRemoteControl => {
+                if !product_surfaces::session_sharing_surface_enabled() {
+                    return;
+                }
                 let source = SharedSessionSource::user(
                     self.active_conversation_task_id(ctx).map(|t| t.to_string()),
                 );
@@ -22739,9 +22720,10 @@ impl TerminalView {
             );
         }
 
-        if (FeatureFlag::CreatingSharedSessions.is_enabled()
-            && ContextFlag::CreateSharedSession.is_enabled())
-            || FeatureFlag::ViewingSharedSessions.is_enabled()
+        if product_surfaces::session_sharing_surface_enabled()
+            && ((FeatureFlag::CreatingSharedSessions.is_enabled()
+                && ContextFlag::CreateSharedSession.is_enabled())
+                || FeatureFlag::ViewingSharedSessions.is_enabled())
         {
             let is_shared_ambient_agent_session = model.is_shared_ambient_agent_session();
             match &self.inline_banners_state.shared_session_banner_state {
@@ -22931,7 +22913,8 @@ impl TerminalView {
 
         // If this is a shared session viewer and the width required to display the entire
         // terminal is larger than the width of the pane, we should make it horizontally scrollable.
-        let should_be_horizontal_scrollable = FeatureFlag::ViewingSharedSessions.is_enabled()
+        let should_be_horizontal_scrollable = product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::ViewingSharedSessions.is_enabled()
             && model.shared_session_status().is_active_viewer()
             && required_terminal_width > pane_width;
 
@@ -23251,7 +23234,8 @@ impl TerminalView {
         // If this is a shared session viewer and the width required to display the entire
         // terminal is larger than the width of the pane, we should make it horizontally scrollable.
         // If there aren't any visible blocks, we should not show a horizontally-scrollable view.
-        let should_be_horizontal_scrollable = FeatureFlag::ViewingSharedSessions.is_enabled()
+        let should_be_horizontal_scrollable = product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::ViewingSharedSessions.is_enabled()
             && model.shared_session_status().is_active_viewer()
             && model
                 .block_list()
@@ -23681,6 +23665,10 @@ impl TerminalView {
                 }
             }
             AskAI(ask_source) => {
+                if !product_surfaces::agents_surface_enabled() {
+                    return;
+                }
+
                 if FeatureFlag::AgentMode.is_enabled() {
                     send_telemetry_from_ctx!(
                         TelemetryEvent::AgentModeClickedEntrypoint {
@@ -24029,8 +24017,6 @@ impl TerminalView {
             SelectAll => self.select_all_text_from_input(ctx),
             Paste => self.paste_in_input(ctx),
             ShowCommandSearch => self.command_search_from_input(ctx),
-            AskWarpAI => self.ask_ai(&AskAISource::SelectedInputText, ctx),
-            ShowAICommandSearch => self.ai_command_search_from_input(ctx),
             SaveAsWorkflow => self.save_as_workflow_from_input(ctx),
             ToggleInputHintText => self.toggle_input_hint_text(ctx),
         }
@@ -25830,7 +25816,11 @@ impl TypedActionView for TerminalView {
                     send_telemetry_from_ctx!(TelemetryEvent::SettingsImportInitiated, ctx);
                 }
             }
-            OpenShareSessionModal { source } => self.open_share_session_modal(*source, ctx),
+            OpenShareSessionModal { source } => {
+                if product_surfaces::session_sharing_surface_enabled() {
+                    self.open_share_session_modal(*source, ctx);
+                }
+            }
             StopSharingCurrentSession { source } => self.stop_sharing_session(*source, ctx),
             ToggleBlockFilterOnSelectedOrLastBlock(source) => {
                 self.toggle_block_filter_on_selected_or_last_block(*source, ctx);

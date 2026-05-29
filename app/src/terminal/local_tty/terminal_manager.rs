@@ -62,6 +62,7 @@ use crate::features::FeatureFlag;
 use crate::network::{NetworkStatusEvent, NetworkStatusKind};
 use crate::pane_group::TerminalViewResources;
 use crate::persistence::ModelEvent;
+use crate::product_surfaces;
 use crate::server::telemetry::{TelemetryAgentViewEntryOrigin, TelemetryEvent};
 use crate::settings::{DebugSettings, PrivacySettings, SshSettings};
 use crate::terminal::available_shells::{AvailableShell, AvailableShells};
@@ -322,7 +323,8 @@ impl TerminalManager {
         // events can observe the correct pending status and source type.
         match is_shared_session_creator {
             IsSharedSessionCreator::Yes { source }
-                if FeatureFlag::CreatingSharedSessions.is_enabled() =>
+                if product_surfaces::session_sharing_surface_enabled()
+                    && FeatureFlag::CreatingSharedSessions.is_enabled() =>
             {
                 model.lock().set_shared_session_status(
                     SharedSessionStatus::SharePendingPreBootstrap { source },
@@ -1572,7 +1574,9 @@ impl TerminalManager {
                 }
 
                 // Stream historical agent conversations so viewers have conversation and task context.
-                if FeatureFlag::AgentSharedSessions.is_enabled() {
+                if product_surfaces::session_sharing_surface_enabled()
+                    && FeatureFlag::AgentSharedSessions.is_enabled()
+                {
                     Self::stream_historical_agent_conversations(&terminal_view, &model, ctx);
                 }
 
@@ -1668,7 +1672,9 @@ impl TerminalManager {
                 request_id,
                 action,
             } => {
-                if !FeatureFlag::AgentSharedSessions.is_enabled() {
+                if !product_surfaces::session_sharing_surface_enabled()
+                    || !FeatureFlag::AgentSharedSessions.is_enabled()
+                {
                     return;
                 }
 
@@ -1921,7 +1927,9 @@ impl TerminalManager {
                 participant_id,
                 request,
             } => {
-                if !FeatureFlag::AgentSharedSessions.is_enabled() {
+                if !product_surfaces::session_sharing_surface_enabled()
+                    || !FeatureFlag::AgentSharedSessions.is_enabled()
+                {
                     return;
                 }
 
@@ -2256,7 +2264,8 @@ impl TerminalManager {
         let session_sharer = shared_session_model.clone();
         let model = model.clone();
 
-        let is_ambient_agent = FeatureFlag::AgentSharedSessions.is_enabled()
+        let is_ambient_agent = product_surfaces::session_sharing_surface_enabled()
+            && FeatureFlag::AgentSharedSessions.is_enabled()
             && AppExecutionMode::as_ref(ctx).is_autonomous();
         // TODO(ben): This is a very suboptimal way of exposing this; lifetime should be a user-visible option.
         let session_lifetime = if is_ambient_agent {
@@ -2271,7 +2280,9 @@ impl TerminalManager {
             TerminalViewEvent::StartSharingCurrentSession {
                 scrollback_type,
                 source,
-            } if FeatureFlag::CreatingSharedSessions.is_enabled() => {
+            } if product_surfaces::session_sharing_surface_enabled()
+                && FeatureFlag::CreatingSharedSessions.is_enabled() =>
+            {
                 Self::start_sharing_session(
                     view.clone(),
                     prompt_type.clone(),

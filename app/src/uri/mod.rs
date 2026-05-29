@@ -26,6 +26,7 @@ use crate::drive::{OpenWarpDriveObjectArgs, OpenWarpDriveObjectSettings};
 use crate::features::FeatureFlag;
 use crate::launch_configs::launch_config::LaunchConfig;
 use crate::linear::{LinearAction, LinearIssueWork};
+use crate::product_surfaces;
 use crate::root_view::{open_new_window_get_handles, OpenLaunchConfigArg};
 use crate::server::ids::ServerId;
 use crate::server::telemetry::{LaunchConfigUiLocation, TelemetryEvent};
@@ -100,7 +101,10 @@ impl FromStr for UriHost {
             "team" => Ok(Self::Team),
             "action" => Ok(Self::Action),
             "launch" => Ok(Self::Launch),
-            "shared_session" if FeatureFlag::ViewingSharedSessions.is_enabled() => {
+            "shared_session"
+                if product_surfaces::session_sharing_surface_enabled()
+                    && FeatureFlag::ViewingSharedSessions.is_enabled() =>
+            {
                 Ok(Self::SharedSession)
             }
             "conversation" => Ok(Self::Conversation),
