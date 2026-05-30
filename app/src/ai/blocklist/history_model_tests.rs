@@ -46,7 +46,6 @@ fn create_persisted_query(
     start_time: DateTime<Local>,
 ) -> PersistedAIInput {
     PersistedAIInput {
-        exchange_id: AIAgentExchangeId::new(),
         conversation_id,
         start_ts: start_time,
         inputs: vec![PersistedAIInputType::Query {
@@ -56,7 +55,6 @@ fn create_persisted_query(
         }],
         output_status: AIQueryHistoryOutputStatus::Completed,
         working_directory: None,
-        model_id: LLMId::from("test-model"),
         coding_model_id: LLMId::from("test-coding-model"),
     }
 }
