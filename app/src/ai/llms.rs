@@ -989,33 +989,6 @@ impl LLMPreferences {
         ctx.dispatch_global_action("workspace:save_app", ());
     }
 
-    pub fn update_preferred_coding_llm(
-        &self,
-        preferred_llm_id: &LLMId,
-        terminal_view_id: Option<EntityId>,
-        ctx: &mut ModelContext<Self>,
-    ) {
-        let new_value = if preferred_llm_id == &self.models_by_feature.coding.default_id {
-            None
-        } else {
-            Some(preferred_llm_id.clone())
-        };
-
-        let mut changed = false;
-        AIExecutionProfilesModel::handle(ctx).update(ctx, |profiles, ctx| {
-            let profile = profiles.active_profile(terminal_view_id, ctx);
-
-            if profile.data().coding_model != new_value {
-                profiles.set_coding_model(*profile.id(), new_value, ctx);
-                changed = true;
-            }
-        });
-
-        if changed {
-            ctx.emit(LLMPreferencesEvent::UpdatedActiveCodingLLM);
-        }
-    }
-
     pub fn new_choices_since_last_update(&self) -> Option<Vec<LLMInfo>> {
         self.last_update.as_ref().map(|update| {
             // We don't want to display new choices if they are warp branded.

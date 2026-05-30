@@ -7,9 +7,9 @@ use warp_core::settings::{ChangeEventReason, Setting};
 use warp_graphql::workspace::FeatureModelChoice;
 use warpui::{AppContext, Entity, ModelContext, SingletonEntity, Tracked};
 
-use super::team::{DiscoverableTeam, Team};
 #[cfg(test)]
 use super::team::MembershipRole;
+use super::team::{DiscoverableTeam, Team};
 #[cfg(test)]
 use super::workspace::WorkspaceMemberUsageInfo;
 use super::workspace::{
@@ -69,7 +69,6 @@ pub struct UserWorkspaces {
     current_workspace_uid: Tracked<Option<WorkspaceUid>>,
     workspaces: Tracked<Vec<Workspace>>,
     joinable_teams: Vec<DiscoverableTeam>,
-    team_client: Arc<dyn TeamClient>,
     workspace_client: Arc<dyn WorkspaceClient>,
 }
 
@@ -100,7 +99,7 @@ pub struct WorkspacesMetadataWithPricing {
 impl UserWorkspaces {
     #[cfg(test)]
     pub fn mock(
-        team_client: Arc<dyn TeamClient>,
+        _team_client: Arc<dyn TeamClient>,
         workspace_client: Arc<dyn WorkspaceClient>,
         cached_workspaces: Vec<Workspace>,
         _ctx: &mut ModelContext<Self>,
@@ -112,7 +111,6 @@ impl UserWorkspaces {
             current_workspace_uid: cached_workspaces.first().map(|w| w.uid).into(),
             workspaces: cached_workspaces.into(),
             joinable_teams: Default::default(),
-            team_client,
             workspace_client,
         }
     }
@@ -128,7 +126,7 @@ impl UserWorkspaces {
     }
 
     pub fn new(
-        team_client: Arc<dyn TeamClient>,
+        _team_client: Arc<dyn TeamClient>,
         workspace_client: Arc<dyn WorkspaceClient>,
         cached_workspaces: Vec<Workspace>,
         current_workspace_uid: Option<WorkspaceUid>,
@@ -159,7 +157,6 @@ impl UserWorkspaces {
             current_workspace_uid: current_workspace_uid.into(),
             workspaces: cached_workspaces.into(),
             joinable_teams: Default::default(),
-            team_client,
             workspace_client,
         }
     }

@@ -1,4 +1,3 @@
-use crate::ai::execution_profiles::profiles::ClientProfileId;
 use warpui::elements::{Element, Empty};
 use warpui::keymap::ContextPredicate;
 use warpui::{Action, AppContext, Entity, TypedActionView, View, ViewContext, ViewHandle};
@@ -35,16 +34,6 @@ pub enum AISettingsPageAction {
     NoOp,
 }
 
-pub enum AISettingsPageEvent {
-    FocusModal,
-    OpenAIFactCollection,
-    OpenMCPServerCollection,
-    OpenExecutionProfileEditor(ClientProfileId),
-    SignupAnonymousUser,
-    ShowModal,
-    HideModal,
-}
-
 pub struct AISettingsPageView {
     page: PageType<Self>,
     active_subpage: Option<AISubpage>,
@@ -65,7 +54,7 @@ impl AISettingsPageView {
 }
 
 impl Entity for AISettingsPageView {
-    type Event = AISettingsPageEvent;
+    type Event = ();
 }
 
 impl TypedActionView for AISettingsPageView {

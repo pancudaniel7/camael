@@ -1231,37 +1231,6 @@ impl DriveIndex {
         ctx.notify();
     }
 
-    /// Expand the section for warp drive item. This is called when we perform deep link to warp
-    /// drive items.
-    pub fn expand_section_for_drive_item_id(
-        &mut self,
-        item_id: WarpDriveItemId,
-        ctx: &mut ViewContext<DriveIndex>,
-    ) {
-        if let WarpDriveItemId::Object(object_id) = item_id {
-            match object_id {
-                CloudObjectTypeAndId::Notebook(sync_id) => {
-                    self.expand_section_for_object(&sync_id.uid().clone(), ctx);
-                }
-                CloudObjectTypeAndId::Workflow(sync_id) => {
-                    self.expand_section_for_object(&sync_id.uid().clone(), ctx);
-                }
-                CloudObjectTypeAndId::Folder(sync_id) => {
-                    self.expand_section_for_object(&sync_id.uid().clone(), ctx);
-                }
-                CloudObjectTypeAndId::GenericStringObject { object_type, id } => {
-                    if let GenericStringObjectFormat::Json(JsonObjectType::EnvVarCollection) =
-                        object_type
-                    {
-                        self.expand_section_for_object(&id.uid().clone(), ctx);
-                    } else {
-                        log::warn!("unknown GenericStringObject type found while trying to manually expand drive section. {object_id:?}");
-                    }
-                }
-            };
-        }
-    }
-
     /// Expand the section that contains an object identified by `id`.
     fn expand_section_for_object(&mut self, id: &ObjectUid, ctx: &mut ViewContext<DriveIndex>) {
         let Some(space) = CloudViewModel::as_ref(ctx).object_space(id, ctx) else {

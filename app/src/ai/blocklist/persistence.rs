@@ -12,24 +12,21 @@ use uuid::Uuid;
 use super::AIQueryHistoryOutputStatus;
 use crate::ai::agent::conversation::AIConversationId;
 use crate::ai::agent::{
-    AIAgentActionType, AIAgentAttachment, AIAgentContext, AIAgentExchangeId, AIAgentInput,
-    AIAgentPtyWriteMode, AskUserQuestionItem, FileLocations, PassiveSuggestionResultType,
-    ReadFilesRequest, RequestComputerUseRequest, SearchCodebaseRequest, UseComputerRequest,
-    UserQueryMode,
+    AIAgentActionType, AIAgentAttachment, AIAgentContext, AIAgentInput, AIAgentPtyWriteMode,
+    AskUserQuestionItem, FileLocations, PassiveSuggestionResultType, ReadFilesRequest,
+    RequestComputerUseRequest, SearchCodebaseRequest, UseComputerRequest, UserQueryMode,
 };
 use crate::ai::llms::LLMId;
 use crate::terminal::model::block::{BlockId, SerializedBlock};
 /// Data we persist for each [`AIAgentExchange`] for use in history. Does not contain output data.
 #[derive(Debug, Deserialize, Clone)]
 pub struct PersistedAIInput {
-    pub(crate) exchange_id: AIAgentExchangeId,
     pub(crate) conversation_id: AIConversationId,
     pub(crate) start_ts: DateTime<Local>,
     pub(crate) inputs: Vec<PersistedAIInputType>,
     pub(crate) output_status: AIQueryHistoryOutputStatus,
     pub(crate) working_directory: Option<String>,
     // TODO(CORE-3546): pub(crate) shell: Option<AvailableShell>,
-    pub(crate) model_id: LLMId,
     #[allow(unused)]
     pub(crate) coding_model_id: LLMId,
 }

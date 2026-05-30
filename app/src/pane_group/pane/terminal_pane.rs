@@ -2246,12 +2246,10 @@ fn handle_ai_history_event(
                     .iter()
                     .filter_map(|input| PersistedAIInputType::try_from(input).ok())
                     .collect(),
-                exchange_id: exchange.id,
                 conversation_id: *conversation_id,
                 output_status: AIQueryHistoryOutputStatus::from(&exchange.output_status),
                 working_directory: exchange.working_directory.clone(),
                 // TODO(CORE-3546): shell: exchange.shell.clone(),
-                model_id: exchange.model_id.clone(),
                 coding_model_id: exchange.coding_model_id.clone(),
             };
             let upsert_ai_query_event = ModelEvent::UpsertAIQuery {
