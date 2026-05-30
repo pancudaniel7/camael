@@ -1174,7 +1174,6 @@ impl SettingsView {
         ]);
 
         let mut nav_items = vec![
-            SettingsNavItem::Page(SettingsSection::Account),
             SettingsNavItem::Page(SettingsSection::BillingAndUsage),
             SettingsNavItem::Umbrella(SettingsUmbrella::new(
                 "Code",
@@ -1183,7 +1182,6 @@ impl SettingsView {
             SettingsNavItem::Page(SettingsSection::Appearance),
             SettingsNavItem::Page(SettingsSection::Features),
             SettingsNavItem::Page(SettingsSection::Keybindings),
-            SettingsNavItem::Page(SettingsSection::Warpify),
             SettingsNavItem::Page(SettingsSection::SharedBlocks),
             SettingsNavItem::Page(SettingsSection::Privacy),
             SettingsNavItem::Page(SettingsSection::About),
@@ -1206,7 +1204,7 @@ impl SettingsView {
             Some(SettingsSection::AI) => SettingsSection::WarpAgent,
             Some(SettingsSection::Code) => SettingsSection::EditorAndCodeReview,
             Some(section) if section.is_subpage() => section,
-            other => other.unwrap_or_default(),
+            other => other.unwrap_or(SettingsSection::BillingAndUsage),
         };
 
         // Auto-expand the umbrella if the initial page is one of its subpages.

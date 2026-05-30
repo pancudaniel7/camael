@@ -8,7 +8,9 @@ use warpui::r#async::Timer;
 use warpui::{duration_with_jitter, Entity, ModelContext, RequestState, SingletonEntity};
 
 use super::team_tester::{TeamTesterStatus, TeamTesterStatusEvent};
-use super::user_workspaces::{UserWorkspaces, WorkspacesMetadataResponse, WorkspacesMetadataWithPricing};
+use super::user_workspaces::{
+    UserWorkspaces, WorkspacesMetadataResponse, WorkspacesMetadataWithPricing,
+};
 use super::workspace::WorkspaceUid;
 use crate::ai::llms::LLMPreferences;
 use crate::auth::AuthStateProvider;

@@ -538,7 +538,6 @@ pub enum CliCommand {
     /// Manage artifacts.
     #[command(subcommand)]
     Artifact(crate::artifact::ArtifactCommand),
-
 }
 
 /// A subcommand of the main Warp application. This includes all [`WorkerCommand`]s as well as app-specific debugging tools.
