@@ -1,6 +1,6 @@
-use crate::server::ids::ServerId;
-use crate::settings_view::settings_page::{MatchData, PageType, SettingsPageMeta, SettingsPageViewHandle};
-use crate::view_components::ToastFlavor;
+use crate::settings_view::settings_page::{
+    MatchData, PageType, SettingsPageMeta, SettingsPageViewHandle,
+};
 use warpui::elements::{Element, Empty};
 use warpui::{AppContext, Entity, TypedActionView, View, ViewContext, ViewHandle};
 
@@ -19,19 +19,7 @@ pub struct OpenTeamsSettingsModalArgs {
 }
 
 #[derive(Debug, Clone)]
-pub enum TeamsPageAction {
-    NoOp,
-    ChangeInviteViewOption(TeamsInviteOption),
-    OpenAdminPanel { team_uid: ServerId },
-}
-
-pub enum TeamsPageViewEvent {
-    TeamsChanged,
-    ShowToast {
-        message: String,
-        flavor: ToastFlavor,
-    },
-}
+pub enum TeamsPageAction {}
 
 pub struct TeamsPageView {
     page: PageType<Self>,
@@ -48,7 +36,7 @@ impl TeamsPageView {
 }
 
 impl Entity for TeamsPageView {
-    type Event = TeamsPageViewEvent;
+    type Event = ();
 }
 
 impl TypedActionView for TeamsPageView {

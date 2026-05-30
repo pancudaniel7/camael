@@ -79,10 +79,6 @@ impl ReferralThemeFetchStatus {
     fn is_active(self) -> bool {
         matches!(self, ReferralThemeFetchStatus::Active)
     }
-
-    fn to_json(self) -> String {
-        serde_json::to_string(&self).expect("FetchStatus should serialize properly")
-    }
 }
 
 /// Parse the sent referral status into a ReferralThemeFetchStatus

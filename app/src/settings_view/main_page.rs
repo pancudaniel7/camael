@@ -714,9 +714,7 @@ impl SettingsWidget for SettingsSyncWidget {
 }
 
 #[derive(Default)]
-struct EarnRewardsWidget {
-    refer_link_mouse_handle: MouseStateHandle,
-}
+struct EarnRewardsWidget;
 
 impl EarnRewardsWidget {
     fn render_row(
@@ -777,9 +775,9 @@ impl SettingsWidget for EarnRewardsWidget {
                     appearance.ui_font_family(),
                     REGULAR_TEXT_FONT_SIZE,
                 )
-                    .with_color(appearance.theme().active_ui_text_color().into())
-                    .soft_wrap(false)
-                    .finish(),
+                .with_color(appearance.theme().active_ui_text_color().into())
+                .soft_wrap(false)
+                .finish(),
             ),
         )
         .with_margin_top(VERTICAL_MARGIN)

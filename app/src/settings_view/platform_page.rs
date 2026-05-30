@@ -1,13 +1,13 @@
-use crate::settings_view::settings_page::{MatchData, PageType, SettingsPageMeta, SettingsPageViewHandle};
+use crate::settings_view::settings_page::{
+    MatchData, PageType, SettingsPageMeta, SettingsPageViewHandle,
+};
 use warpui::elements::{Element, Empty};
 use warpui::{AppContext, Entity, TypedActionView, View, ViewContext, ViewHandle};
 
 use super::SettingsSection;
 
 #[derive(Clone, Debug)]
-pub enum PlatformPageAction {
-    NoOp,
-}
+pub enum PlatformPageAction {}
 
 pub struct PlatformPageView {
     page: PageType<Self>,
