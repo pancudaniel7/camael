@@ -215,7 +215,7 @@ impl CloudSetupGuideView {
         let font_size = 16.;
 
         let text = Text::new_inline(
-            "Quick start: Visit oz.warp.dev for a UI-based setup experience.",
+            "Quick start: Configure your AI agent locally.",
             appearance.ui_font_family(),
             font_size,
         )
