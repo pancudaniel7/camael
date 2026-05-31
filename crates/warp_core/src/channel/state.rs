@@ -36,7 +36,7 @@ pub struct ChannelState {
 impl ChannelState {
     pub fn init() -> Self {
         let channel = Channel::Oss;
-        let app_id = AppId::new("dev", "warp", "WarpOss");
+        let app_id = AppId::new("dev", "camael", "Camael");
         Self {
             channel,
             additional_features: Default::default(),

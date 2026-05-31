@@ -1,4 +1,7 @@
-<h1></h1>
+<h1>
+  <img src="app/assets/bundled/svg/warp-logo-dark.svg" height="60" valign="middle" alt="Camael wing logo" />
+  &nbsp;Camael
+</h1>
 
 ## About
 
