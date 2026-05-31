@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use pathfinder_color::ColorU;
 use pathfinder_geometry::vector::vec2f;
 use warp_core::channel::ChannelState;
-use warp_core::context_flag::ContextFlag;
+
 use warp_core::features::FeatureFlag;
 use warp_core::ui::icons::Icon;
 use warpui::assets::asset_cache::AssetSource;
@@ -21,7 +21,7 @@ use warpui::ui_components::button::{ButtonVariant, TextAndIcon, TextAndIconAlign
 use warpui::ui_components::components::{Coords, UiComponent, UiComponentStyles};
 use warpui::ui_components::switch::SwitchStateHandle;
 use warpui::{
-    id, Action, AppContext, Entity, ModelHandle, SingletonEntity, TypedActionView, View,
+    id, Action, AppContext, Entity, SingletonEntity, TypedActionView, View,
     ViewContext, ViewHandle,
 };
 
@@ -778,7 +778,7 @@ impl VersionInfoWidget {
         &self,
         version: &'static str,
         appearance: &Appearance,
-        app: &AppContext,
+        _app: &AppContext,
     ) -> Box<dyn Element> {
         let faded_text_color = appearance
             .theme()
