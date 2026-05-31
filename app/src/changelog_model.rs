@@ -51,7 +51,7 @@ impl ChangelogModel {
             }
             ChangelogState::None => {
                 self.changelog = ChangelogState::Pending;
-                let server_api = self.server_api.clone();
+                let _server_api = self.server_api.clone();
                 let _ = ctx.spawn(
                     async move { (request_type, Ok(None)) },
                     Self::handle_changelog_check,

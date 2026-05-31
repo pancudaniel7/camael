@@ -524,12 +524,6 @@ pub const TOTAL_TAB_BAR_HEIGHT: f32 = TAB_BAR_HEIGHT + TAB_BAR_BORDER_HEIGHT;
 
 const TAB_BAR_ICON_PADDING: f32 = 4.;
 
-const TAB_BAR_PILL_WIDTH: f32 = 100.;
-const PILL_FONT_SIZE: f32 = 12.;
-// We use the word "Warp" in the Update Ready button to make it obvious that the terminal is Warp.
-// This can lead to free advertising when users screen-share Warp when an update is available.
-const UPDATE_READY_TEXT: &str = "Update Camael";
-
 const TAB_BAR_OVERFLOW_MENU_WIDTH: f32 = 300.;
 
 #[cfg(not(target_family = "wasm"))]
@@ -555,9 +549,6 @@ const ELLIPSE_SVG_PATH: &str = "bundled/svg/ellipse.svg";
 
 const AI_ASSISTANT_BUTTON_ID: &str = "workspace_view:ai_assistant_button";
 
-const VERSION_DEPRECATION_BANNER_TEXT: &str = "Your app is out of date and some features may not work as expected. Please update immediately.";
-
-const VERSION_DEPRECATION_WITHOUT_PERMISSIONS_BANNER_TEXT: &str = "Some Camael features may not work as expected without updating immediately, but Camael is unable to perform the update.";
 
 const ASK_AI_ASSISTANT_KEYBINDING_NAME: &str = "workspace:toggle_ai_assistant";
 const TOGGLE_RESOURCE_CENTER_KEYBINDING_NAME: &str = "workspace:toggle_resource_center";
@@ -6642,7 +6633,7 @@ impl Workspace {
             return;
         }
 
-        let mut menu_items = vec![];
+        let menu_items = vec![];
         ctx.update_view(&self.tab_bar_overflow_menu, |context_menu, view_ctx| {
             context_menu.set_items(menu_items, view_ctx);
         });
@@ -8344,7 +8335,7 @@ impl Workspace {
     }
 
     fn user_menu_items(&self, _app: &AppContext) -> Vec<MenuItem<WorkspaceAction>> {
-        let mut items = vec![
+        let items = vec![
             MenuItemFields::new("Settings")
                 .with_on_select_action(WorkspaceAction::ShowSettings)
                 .into_item(),
@@ -18788,7 +18779,7 @@ impl Workspace {
         .finish()
     }
 
-    fn render_avatar_button(&self, appearance: &Appearance, ctx: &AppContext) -> Box<dyn Element> {
+    fn render_avatar_button(&self, appearance: &Appearance, _ctx: &AppContext) -> Box<dyn Element> {
         let is_anonymous = self.auth_state.is_anonymous_or_logged_out();
         let display_name = self
             .auth_state
@@ -18807,7 +18798,7 @@ impl Workspace {
                 .unwrap_or(AvatarContent::DisplayName(display_name.clone()))
         };
 
-        let mut avatar = Avatar::new(
+        let avatar = Avatar::new(
             avatar_content,
             UiComponentStyles {
                 width: Some(20.),
@@ -19162,8 +19153,8 @@ impl Workspace {
 
     fn render_tab_overflow_menu(
         &self,
-        app: &AppContext,
-        appearance: &Appearance,
+        _app: &AppContext,
+        _appearance: &Appearance,
     ) -> Option<Box<dyn Element>> {
         if !ContextFlag::PromptForVersionUpdates.is_enabled() {
             return None;

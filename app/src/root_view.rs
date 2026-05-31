@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::sync::mpsc::SyncSender;
 use std::sync::Arc;
 
-use anyhow::Result;
+
 use cfg_if::cfg_if;
 use itertools::Itertools;
 use lazy_static::lazy_static;
@@ -1611,7 +1611,6 @@ enum AuthOnboardingState {
 
 pub struct RootView {
     auth_onboarding_state: AuthOnboardingState,
-    server_time: Option<Arc<ServerTime>>,
     auth_view: ViewHandle<AuthView>,
     auth_override_view: ViewHandle<AuthOverrideWarningModal>,
     needs_sso_link_view: ViewHandle<NeedsSsoLinkView>,
@@ -1718,7 +1717,6 @@ impl RootView {
 
         let root_view = Self {
             auth_onboarding_state,
-            server_time: None,
             auth_view,
             auth_override_view,
             needs_sso_link_view,
@@ -1806,26 +1804,6 @@ impl RootView {
         }
     }
 
-
-    fn server_time_updated(
-        &mut self,
-        server_time: Result<ServerTime>,
-        ctx: &mut ViewContext<Self>,
-    ) {
-        if let Ok(server_time) = server_time {
-            let server_time = Arc::new(server_time);
-            self.server_time = Some(server_time.clone());
-
-            if let AuthOnboardingState::Terminal(workspace) = &self.auth_onboarding_state {
-                workspace.update(ctx, |workspace, ctx| {
-                    workspace.set_server_time(server_time);
-                    ctx.notify();
-                })
-            }
-        } else {
-            log::error!("Error fetching server time {:?}", server_time.err());
-        }
-    }
 
     // Switch to Auth Screen while destroying Workspace.
     fn log_out(&mut self, _: &(), ctx: &mut ViewContext<Self>) -> bool {

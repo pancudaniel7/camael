@@ -52,7 +52,7 @@ use crate::ai::predict::{generate_ai_input_suggestions, generate_am_query_sugges
 use crate::ai::voice::transcribe::{TranscribeRequest, TranscribeResponse};
 use crate::auth::auth_manager::AuthManager;
 use crate::auth::auth_state::AuthState;
-use crate::auth::UserUid;
+
 use crate::server::graphql::default_request_options;
 use crate::server::server_api::presigned_upload::HttpStatusError;
 use crate::settings::PrivacySettingsSnapshot;
@@ -504,10 +504,6 @@ impl ServerApi {
 
     pub(super) fn anonymous_id(&self) -> String {
         self.auth_state.anonymous_id()
-    }
-
-    fn user_id(&self) -> Option<UserUid> {
-        self.auth_state.user_id()
     }
 
     /// Sets the ambient agent task ID to be sent with all subsequent requests.

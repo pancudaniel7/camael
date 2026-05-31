@@ -11,7 +11,7 @@ use url::Url;
 use user_persistence::PersistedUser;
 use uuid::Uuid;
 use warp_core::channel::ChannelState;
-use warp_core::features::FeatureFlag;
+
 use warp_graphql::mutations::create_anonymous_user::{
     AnonymousUserType, CreateAnonymousUserResult,
 };
