@@ -208,9 +208,6 @@ pub enum WorkspaceAction {
     ViewLatestChangelog,
     ViewPrivacyPolicy,
     SendFeedback,
-    /// Open the log directory in the system file explorer with the current log file selected.
-    #[cfg(not(target_family = "wasm"))]
-    ViewLogs,
     ChangeCursor(Cursor),
     ToggleBlockSnackbar,
     ToggleErrorUnderlining,
@@ -988,8 +985,6 @@ impl WorkspaceAction {
             | ResetOrchestrationLaunchModalState
             | InstallOpenCodeWarpPlugin
             | UseLocalOpenCodeWarpPlugin => false,
-            #[cfg(not(target_family = "wasm"))]
-            ViewLogs => false,
             #[cfg(target_os = "macos")]
             SampleProcess => false,
             #[cfg(target_os = "macos")]

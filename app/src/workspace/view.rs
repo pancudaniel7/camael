@@ -6128,33 +6128,6 @@ impl Workspace {
     }
 
     #[cfg(not(target_family = "wasm"))]
-    fn view_logs(&mut self, ctx: &mut ViewContext<Self>) {
-        ctx.spawn(
-            async { tokio::task::spawn_blocking(warp_logging::create_log_bundle_zip).await },
-            |me, result, ctx| match result {
-                Ok(Ok(path)) => {
-                    ctx.open_file_path_in_explorer(&path);
-                }
-                Ok(Err(err)) => {
-                    let error_message = format!("Failed to create log bundle: {err}");
-                    log::error!("{error_message}");
-                    me.toast_stack.update(ctx, |toast_stack, ctx| {
-                        let toast = DismissibleToast::error(error_message);
-                        toast_stack.add_persistent_toast(toast, ctx);
-                    });
-                }
-                Err(err) => {
-                    let error_message = format!("Failed to create log bundle: {err}");
-                    log::error!("{error_message}");
-                    me.toast_stack.update(ctx, |toast_stack, ctx| {
-                        let toast = DismissibleToast::error(error_message);
-                        toast_stack.add_persistent_toast(toast, ctx);
-                    });
-                }
-            },
-        );
-    }
-
     fn copy_version(&mut self, version: &str, ctx: &mut ViewContext<Self>) {
         ctx.clipboard()
             .write(ClipboardContent::plain_text(version.to_string()));
@@ -8426,13 +8399,6 @@ impl Workspace {
                 .with_on_select_action(WorkspaceAction::ShowSettings)
                 .into_item(),
         ];
-
-        #[cfg(not(target_family = "wasm"))]
-        items.push(
-            MenuItemFields::new("View Warp logs")
-                .with_on_select_action(WorkspaceAction::ViewLogs)
-                .into_item(),
-        );
 
         items
     }
@@ -21325,8 +21291,6 @@ impl TypedActionView for Workspace {
             ViewLatestChangelog => self.view_latest_changelog(ctx),
             ViewPrivacyPolicy => self.view_privacy_policy(ctx),
             SendFeedback => self.send_feedback(ctx),
-            #[cfg(not(target_family = "wasm"))]
-            ViewLogs => self.view_logs(ctx),
             ChangeCursor(cursor) => self.change_cursor(*cursor, ctx),
             ToggleErrorUnderlining => self.toggle_error_underlining(ctx),
             ToggleSyntaxHighlighting => self.toggle_syntax_highlighting(ctx),

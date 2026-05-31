@@ -530,7 +530,7 @@ impl LaunchMode {
             // Proxy must log to stderr because stdout is the protocol channel.
             LaunchMode::RemoteServerProxy => Some(LogDestination::Stderr),
             LaunchMode::RemoteServerDaemon { .. } => Some(LogDestination::File),
-            LaunchMode::App { .. } | LaunchMode::Test { .. } => None,
+            LaunchMode::App { .. } | LaunchMode::Test { .. } => Some(LogDestination::Stderr),
         }
     }
 
