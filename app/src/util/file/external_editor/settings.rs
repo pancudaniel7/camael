@@ -20,7 +20,7 @@ pub use crate::util::openable_file_type::EditorLayout;
 )]
 pub enum EditorChoice {
     SystemDefault,
-    Warp,
+    Camael,
     EnvEditor,
     #[schemars(description = "A specific external code editor.")]
     ExternalEditor(super::Editor),
@@ -45,7 +45,7 @@ impl<'de> Deserialize<'de> for EditorChoice {
         #[derive(Deserialize)]
         enum EditorChoiceInner {
             SystemDefault,
-            Warp,
+            Camael,
             EnvEditor,
             ExternalEditor(super::Editor),
         }

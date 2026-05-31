@@ -48,7 +48,7 @@ pub(super) fn maybe_register_app_as_login_item(ctx: &mut AppContext) {
                     match register(&value_name, &exe) {
                         Ok(()) => true,
                         Err(err) => {
-                            log::warn!("Failed to register Warp as a login item: {err}");
+                            log::warn!("Failed to register Camael as a login item: {err}");
                             false
                         }
                     }
@@ -58,7 +58,7 @@ pub(super) fn maybe_register_app_as_login_item(ctx: &mut AppContext) {
                         Err(err) => {
                             // Don't flip app_added_as_login_item on failure — let a
                             // later retoggle try again.
-                            log::warn!("Failed to unregister Warp as a login item: {err}");
+                            log::warn!("Failed to unregister Camael as a login item: {err}");
                         }
                     }
                     false
@@ -178,9 +178,9 @@ mod tests {
     fn register_writes_quoted_path() {
         let scratch = ScratchSubkey::new("register_writes_quoted_path");
         let exe = PathBuf::from(r"C:\Program Files\Warp\warp.exe");
-        register_in(HKEY_CURRENT_USER, &scratch.path, "Warp", &exe).unwrap();
+        register_in(HKEY_CURRENT_USER, &scratch.path, "Camael", &exe).unwrap();
         assert_eq!(
-            scratch.read("Warp").as_deref(),
+            scratch.read("Camael").as_deref(),
             Some(r#""C:\Program Files\Warp\warp.exe""#)
         );
     }
@@ -191,19 +191,19 @@ mod tests {
         register_in(
             HKEY_CURRENT_USER,
             &scratch.path,
-            "Warp",
+            "Camael",
             &PathBuf::from(r"C:\old\warp.exe"),
         )
         .unwrap();
         register_in(
             HKEY_CURRENT_USER,
             &scratch.path,
-            "Warp",
+            "Camael",
             &PathBuf::from(r"C:\new\warp.exe"),
         )
         .unwrap();
         assert_eq!(
-            scratch.read("Warp").as_deref(),
+            scratch.read("Camael").as_deref(),
             Some(r#""C:\new\warp.exe""#)
         );
     }
@@ -212,18 +212,18 @@ mod tests {
     fn unregister_is_idempotent() {
         let scratch = ScratchSubkey::new("unregister_is_idempotent");
         // Never registered: unregister should be Ok.
-        unregister_in(HKEY_CURRENT_USER, &scratch.path, "Warp").unwrap();
+        unregister_in(HKEY_CURRENT_USER, &scratch.path, "Camael").unwrap();
         // Register, then unregister twice.
         register_in(
             HKEY_CURRENT_USER,
             &scratch.path,
-            "Warp",
+            "Camael",
             &PathBuf::from(r"C:\warp.exe"),
         )
         .unwrap();
-        unregister_in(HKEY_CURRENT_USER, &scratch.path, "Warp").unwrap();
-        unregister_in(HKEY_CURRENT_USER, &scratch.path, "Warp").unwrap();
-        assert!(scratch.read("Warp").is_none());
+        unregister_in(HKEY_CURRENT_USER, &scratch.path, "Camael").unwrap();
+        unregister_in(HKEY_CURRENT_USER, &scratch.path, "Camael").unwrap();
+        assert!(scratch.read("Camael").is_none());
     }
 
     #[test]
@@ -232,7 +232,7 @@ mod tests {
         register_in(
             HKEY_CURRENT_USER,
             &scratch.path,
-            "Warp",
+            "Camael",
             &PathBuf::from(r"C:\warp.exe"),
         )
         .unwrap();
@@ -244,9 +244,9 @@ mod tests {
         )
         .unwrap();
 
-        unregister_in(HKEY_CURRENT_USER, &scratch.path, "Warp").unwrap();
+        unregister_in(HKEY_CURRENT_USER, &scratch.path, "Camael").unwrap();
 
-        assert!(scratch.read("Warp").is_none());
+        assert!(scratch.read("Camael").is_none());
         assert_eq!(
             scratch.read("WarpPreview").as_deref(),
             Some(r#""C:\warp-preview.exe""#)
@@ -258,7 +258,7 @@ mod tests {
         unregister_in(
             HKEY_CURRENT_USER,
             r"Software\Warp\LoginItemTests\does-not-exist",
-            "Warp",
+            "Camael",
         )
         .unwrap();
     }

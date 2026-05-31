@@ -38,7 +38,7 @@ impl FeatureSection {
         match self {
             FeatureSection::WhatsNew => "What's New?",
             FeatureSection::GettingStarted => "Getting Started",
-            FeatureSection::MaximizeWarp => "Maximize Warp",
+            FeatureSection::MaximizeWarp => "Maximize Camael",
             FeatureSection::AdvancedSetup => "Advanced Setup",
         }
     }

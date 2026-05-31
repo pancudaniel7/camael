@@ -310,7 +310,7 @@ fn installer_file_name() -> Result<String> {
 
 fn app_name_prefix(channel: Channel) -> &'static str {
     match channel {
-        Channel::Stable => "Warp",
+        Channel::Stable => "Camael",
         Channel::Preview => "WarpPreview",
         Channel::Local => "warp",
         Channel::Integration => "integration",
@@ -345,7 +345,7 @@ mod tests {
     fn parses_exit_code_embedded_in_multiline_log() {
         // The pattern appears after several unrelated log lines.
         let contents = log(
-            "[2024-01-01 00:00:00] Warp mutex still held after timeout; force-killing remaining processes.\n\
+            "[2024-01-01 00:00:00] Camael mutex still held after timeout; force-killing remaining processes.\n\
              [2024-01-01 00:00:01] force-kill failed for warp.exe (exit code: 5)\n\
              [2024-01-01 00:00:02] Installation complete.",
         );

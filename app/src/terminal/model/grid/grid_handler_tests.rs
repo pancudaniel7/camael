@@ -133,7 +133,7 @@ fn regex_left() {
 fn nested_regex() {
     #[rustfmt::skip]
     let blockgrid = mock_blockgrid("\
-        Wa -> Warp -> rp\r\n\
+        Wa -> Camael -> rp\r\n\
         rp\
     ");
 

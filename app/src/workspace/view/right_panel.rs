@@ -65,7 +65,7 @@ pub enum ReviewDestination {
     /// No terminal is available to receive comments.
     None,
     /// A Warp agent terminal is available (input box visible, not executing).
-    Warp,
+    Camael,
     /// A CLI agent (e.g. Claude Code, Gemini) is running in a terminal.
     Cli(CLIAgent),
 }
@@ -96,7 +96,7 @@ impl ReviewTerminalUnavailableReason {
             Self::NoSelectedRepo => "no repo is selected for code review",
             Self::SessionPathUnavailable => "session cwd is unavailable or not local",
             Self::SessionOutsideSelectedRepo => "session cwd is not inside selected repo",
-            Self::AIDisabled => "AI is disabled for Warp review destinations",
+            Self::AIDisabled => "AI is disabled for Camael review destinations",
             Self::TerminalExecuting => "terminal is currently executing a command",
             Self::InputBoxNotVisible => "terminal input box is not visible",
         }
