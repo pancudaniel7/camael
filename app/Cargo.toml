@@ -972,7 +972,17 @@ copyright = "© 2026, Denver Technologies, Inc"
 identifier = "dev.camael.Camael"
 name = "Camael"
 resources = ["assets/onboarding"]
-icon = ["channels/oss/icon/no-padding/512x512.png", "channels/oss/icon/no-padding/icon.ico"]
+icon = [
+  "channels/oss/icon/no-padding/16x16.png",
+  "channels/oss/icon/no-padding/32x32.png",
+  "channels/oss/icon/no-padding/48x48.png",
+  "channels/oss/icon/no-padding/64x64.png",
+  "channels/oss/icon/no-padding/128x128.png",
+  "channels/oss/icon/no-padding/256x256.png",
+  "channels/oss/icon/no-padding/512x512.png",
+  "channels/oss/icon/no-padding/icon.ico",
+  "channels/oss/icon/camael.icns",
+]
 short_description = "The open-source, cloud-backed terminal for individuals and teams."
 
 [package.metadata.bundle.bin.stable]

@@ -1,184 +1,135 @@
 # Contributing to Camael
 
-Thanks for helping improve Camael! This guide explains how to open issues, propose changes, and get your work reviewed.
-
-> [!TIP]
-> **Chat with us in Slack.** Connect with other contributors and the Camael team in the [`#oss-contributors`](https://warpcommunity.slack.com/archives/C0B0LM8N4DB) channel — a good place for ad-hoc questions, design discussion, and pairing with maintainers as you work through an issue or PR. New here? [Join the Camael Slack community](https://go.camael.dev/join-preview) first, then hop into `#oss-contributors`.
+Thanks for your interest in improving Camael. This project is a fork of [Warp](https://github.com/warpdotdev/Warp) stripped of all telemetry, cloud calls, and external dependencies — built for engineers who work in environments where data cannot leave the machine. Contributions that preserve that guarantee are welcome.
 
 ## TL;DR
 
-- Bug fixes are welcome once the report is actionable from the provided details or maintainer triage.
-- Feature requests must be marked `ready-to-spec` or `ready-to-implement` before PRs are accepted.
-- Specs are the place where technical and design discussion on larger issues happen.
-- Oz automatically triages incoming issues and reviews open PRs.
-- Implementation PRs must include proof of manual testing.
+- Bug fixes can go straight to a PR once the issue is clear and reproducible.
+- Feature requests should be discussed in a GitHub issue before any code is written.
+- All PRs require proof of manual testing (screenshots or a screen recording).
+- Keep the project offline-first — do not introduce network calls, telemetry, or cloud dependencies.
 
-## How Contributing to Camael Works
+## What This Project Is
 
-Camael's contribution model is shaped by [Oz](https://oz.camael.dev), an agent that automates parts of triage, spec writing, implementation, and review. Compared with a typical open-source repository, a few things work differently here:
+Camael is a privacy-first, offline terminal UI for regulated environments (finance, defense, healthcare, government). The core design constraints are:
 
-- **Issues are the starting point for everything.** Discussion, scoping, and design happen on the issue before any PR is opened.
-- **Feature requests differ from bug fixes:**
-  - Features are gated by readiness labels — `ready-to-spec`, then `ready-to-implement` once the design is settled — that signal when contributors can pick up the work. Discussion alone is not approval to begin work.
-  - Feature work needs a written spec first: feature requests go through a spec PR (a *product spec* + *tech spec* committed under [`specs/`](specs/)) before any code is written.
-  - Bug fixes can go straight to a code PR once the report is reproducible or otherwise actionable; they do not require spec PRs unless the scope or design is unclear.
-- **Review is largely automated.** When you open a PR, Oz is auto-assigned and produces an initial review. Once Oz approves, it automatically requests a follow-up review from a Camael team subject-matter expert — you do not need to assign human reviewers yourself.
+- **No outbound network requests.** Nothing leaves the machine without the user's explicit, auditable action.
+- **No telemetry.** No usage tracking, no crash reporting, no analytics.
+- **No cloud dependencies at runtime.** The binary runs fully air-gapped.
 
-### Readiness labels
-
-The Camael team applies one of the following labels when an issue is ready for contribution:
-
-- **`ready-to-spec`** — The problem is understood but the design is open. Open a spec PR with a *product spec* (`product.md`) and a *tech spec* (`tech.md`) under [`specs/`](specs/) — see [Opening a Spec PR](#opening-a-spec-pr) for what goes in each. This label is **reserved for feature requests**.
-- **`ready-to-implement`** — The issue is ready for a code PR. For bugs, this means the report is sufficiently reproducible or actionable and the likely fix does not need a spec, mocks, or deeper investigation.
-- **`needs-mocks`** — Design mocks are required before implementation can begin. Wait for the Camael team to land them.
-
-Anyone can pick up a ready issue — readiness labels are not assignments, and the best implementation wins through normal review. If an issue has been sitting un-triaged or you'd like readiness re-evaluated, mention **@oss-maintainers** in a comment to flag it for the team.
+Any contribution that introduces or re-introduces network calls, telemetry, or cloud-dependent features will not be merged unless there is an explicit opt-in mechanism and it defaults to off.
 
 ## Contribution Flow
 
-Steps owned by you (the contributor) are shown in yellow; steps owned by the Camael team or Oz are shown in blue.
-
 ```mermaid
 flowchart TD
-    A[File an issue] --> B{Camael team triages}
-    B -- ready-to-spec<br/>(feature requests) --> C[Open spec PR<br/>product.md + tech.md]
-    B -- needs-mocks --> D[Design mocks produced]
-    D --> E[Open code PR]
-    C -- specs approved --> E
-    B -- ready-to-implement<br/>(actionable bugs or settled designs) --> E
-    E --> F[Oz review → SME review → CI → merge]
-
-    classDef contributor fill:#fef3c7,stroke:#b45309,color:#78350f;
-    classDef CamaelTeam fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a;
-    class A,C,E contributor;
-    class B,D,F CamaelTeam;
+    A[Open a GitHub issue] --> B{Is it a bug or a feature?}
+    B -- Bug --> C[Fix confirmed reproducible bug]
+    B -- Feature --> D[Discuss design in issue]
+    D --> E[Design agreed by maintainers]
+    E --> C
+    C --> F[Open PR with manual testing proof]
+    F --> G[Maintainer review → merge]
 ```
 
-## Filing a Good Issue
+## Filing an Issue
 
-Search [existing issues](https://github.com/Camaeldotdev/camael/issues) before filing to avoid duplicates. Use the issue templates when filing.
-
-If you're already running Camael, the fastest way to file is the `/feedback` command — it opens a public GitHub issue with relevant context (logs, environment details) automatically attached.
+Search [existing issues](https://github.com/pancudaniel7/camael/issues) before filing.
 
 ### Bug reports
 
-A good bug report includes:
+Include:
 
-- A clear title and a one-paragraph summary of the problem.
-- Steps to reproduce (with a minimal example where possible).
+- A clear title and one-paragraph summary.
+- Steps to reproduce, with a minimal example where possible.
 - Expected vs. actual behavior.
-- Camael version and OS (see `Settings → About`).
-- Logs, screenshots, or screen recordings when relevant.
-
-Once an issue is triaged as an actionable bug (by Oz's triage agent or a maintainer), it may be labeled **`ready-to-implement`** so you can pick it up and open a code PR.
+- Camael version and OS (`Settings → About`).
+- Logs or screenshots when relevant.
 
 ### Feature requests
 
-A good feature request describes the user-facing problem before any proposed implementation. Include:
+Describe the user problem before any implementation idea. Include:
 
-- The user need or pain point, and who experiences it.
-- The current behavior and why it falls short.
-- A sketch of the desired behavior or workflow (a short example or mock is helpful but not required).
-- Any relevant constraints (compatibility, related features, prior art, etc.).
+- The need or pain point, and who experiences it.
+- Why the current behavior falls short.
+- A sketch of the desired behavior.
+- Any constraints relevant to air-gapped or regulated environments.
 
-Feature requests are the path that goes through the spec flow: a maintainer applies **`ready-to-spec`** when the problem is understood and the design is open for contributors. From there, the next step is a spec PR — not a code PR.
+Features that require network access will only be considered if they are strictly opt-in and disabled by default.
 
-Automated triage may add informational labels (`area:*`, `repro:*`, etc.). Those do not affect readiness.
+## Opening a Pull Request
 
-## Opening a Spec PR
-
-Issues labeled `ready-to-spec` need a spec before code can begin. A spec consists of two short documents committed under [`specs/GH<issue-number>/`](specs/):
-
-- **`product.md`** (the *product spec*) — Defines the desired behavior from the consumer's perspective (the user, an API caller, a CLI user, etc.) and stays out of implementation detail. The core is a numbered list of **testable behavior invariants** covering the happy path, user-visible states, inputs and responses, and edge cases (empty / error / loading, cancellation, offline, permission denied, races, accessibility). Optional sections: problem statement, goals / non-goals, Figma link, open questions.
-- **`tech.md`** (the *tech spec*) — The implementation plan, grounded in this codebase. Required sections: **Context** (the current system and relevant files with line references), **Proposed changes** (modules touched, new types / APIs / state, data flow, tradeoffs), and **Testing and validation** (how each invariant from the product spec will be verified). Optional: end-to-end flow, Mermaid diagrams, risks, parallelization, follow-ups.
-
-To open a spec PR:
-
-1. Add `specs/GH<issue-number>/product.md` and `specs/GH<issue-number>/tech.md`. See [`specs/GH408/`](specs/GH408/), [`specs/GH1063/`](specs/GH1063/), and [`specs/GH1066/`](specs/GH1066/) for examples of well-structured specs, and browse the rest of [`specs/`](specs/) for more. The [`/write-product-spec`](.agents/skills/write-product-spec/SKILL.md) and [`/write-tech-spec`](.agents/skills/write-tech-spec/SKILL.md) skills are available to scaffold these for you.
-2. Use the PR as the home for product and technical discussion.
-3. Once the specs are approved, implementation generally continues on the same PR. In rarer cases — for example, if a large spec is merged on its own so the implementation can be broken up — it can move to a linked follow-up PR.
-
-## Opening a Code PR
-
-For issues labeled `ready-to-implement`:
-
-1. Branch from `master`.
-2. Implement the change and add tests (see [Testing](#testing)).
+1. Branch from `main`.
+2. Implement the change and add tests where applicable (see [Testing](#testing)).
 3. Run `./script/presubmit` and fix any failures before pushing.
-4. Open a PR using the [pull request template](.github/pull_request_template.md) and add a changelog entry (`CHANGELOG-NEW-FEATURE`, `CHANGELOG-IMPROVEMENT`, or `CHANGELOG-BUG-FIX`); omit only for docs-only or refactoring-only changes.
-5. Keep the PR focused on a single logical change and merge `master` in before the PR enters review.
+4. Open a PR with a clear description of what changed and why.
+5. **Include proof of manual testing** — before/after screenshots for visual changes, a screen recording for larger or interactive changes.
 
-You **do not need to manually request reviewers**. Oz is auto-assigned to PRs that target a ready issue and produces an initial review. After Oz approves, it automatically requests a follow-up review from the appropriate Camael team subject-matter expert.
-
-After you push changes that address Oz's feedback, comment `/oz-review` on the PR to request a re-review — you can do this up to **three times** per PR. If something looks stuck or you need more reviews than that, mention **@oss-maintainers** on the PR to escalate to the team.
-
-**You must include proof of [manual testing](#manual-testing)**. For small, isolated, and visual changes, you should include **before and after screenshots**. For larger, broad, or interactive changes, you should also include a **narrated screen recording**.
-
-If a maintainer requests changes to your PR, you will need to request `/oz-review` again and pass it before a re-review can be requested. Oz will request the re-review for you automatically once you pass its reviews.
-
-## Using a Coding Agent
-
-You can use **any coding agent** to implement a contribution — for example, Camael's built-in agent, Claude Code, Codex, Gemini CLI, or others — or no agent at all. This repository ships agent-readable context (skills under [`.agents/skills/`](.agents/skills/), specs under [`specs/`](specs/), and [`camael.md`](camael.md)) that any harness supporting these formats can pick up.
-
-If you'd rather have an **Oz cloud agent** implement a ready issue for you, mention **@oss-maintainers** on the issue to request it. Approved requests run **for free** on complimentary Oz credits — you don't need to set up your own Oz account or pay for compute.
-
-While you can use coding agents for implementation, we expect contributors to **collaborate with us personally**. This means that you should not be using agents like OpenClaw to engage in conversation with our team. Our maintainers will always talk to you as a human, so please talk to us as a human as well.
-
-## Code Review
-
-All pull requests go through a two-stage review process:
-
-1. **Oz review** — When you open a PR, [Oz](https://warp.dev/oz) is automatically assigned and produces the first review. Oz checks for correctness, style, test coverage, and alignment with the linked issue and any associated specs.
-2. **Camael team review** — Only after Oz has **approved** the PR is it routed to a Camael team subject-matter expert for a final human review. PRs that have not yet been approved by Oz will not be assigned to a team member.
-
-You do not need to manually request reviewers at any stage. After pushing changes that address Oz's feedback, comment `/oz-review` on the PR to request a re-review — you can do this up to **three times** per PR. If something looks stuck or you need additional reviews, mention **@oss-maintainers** on the PR to escalate to the team.
+Keep PRs focused on a single logical change. Large PRs are harder to review and slower to merge.
 
 ## Development Setup
 
-See [README.md](README.md) and [camael.md](camael.md) for the full engineering guide. Quick start:
-
 ```bash
-./script/bootstrap   # platform-specific setup
+./script/bootstrap   # platform-specific setup (Rust toolchain, dependencies)
 cargo run            # build and run Camael
 ./script/presubmit   # fmt, clippy, and tests
 ```
 
+See [README.md](README.md) and [CLAUDE.md](CLAUDE.md) for the full engineering guide.
+
 ## Testing
 
-Tests are required for most code changes:
+### Manual testing
 
-### Manual Testing
-Manual testing is required for changes that can be manually tested, and almost all changes can be manually tested. For small, isolated, and visual changes, you should include **before and after screenshots**. For larger, broad, or interactive changes, you should also include a **narrated screen recording**.
+Required for all changes that affect visible behavior. Include:
 
-You can run the app locally using `./script/run` - see [camael.md](camael.md) for more details on how to get set up.
+- **Before/after screenshots** for small or visual changes.
+- **A narrated screen recording** for larger or interactive changes.
 
-### Automated Tests
-- **Bug fixes** should include a regression test that would have caught the bug.
-- **Algorithmic or non-trivial logic** needs unit tests.
-- **User-facing flows** should have end-to-end coverage under [`crates/integration/`](crates/integration/) whenever the behavior can be exercised that way. The bar is high-quality coverage of the changes you ship — with agent-driven development the expectation is more integration tests, not just coverage of P0 paths. If a flow is worth shipping, it's usually worth an integration test.
+### Automated tests
 
-Run unit tests with `cargo nextest run`.
+- **Bug fixes** should include a regression test.
+- **Non-trivial logic** needs unit tests.
+- **User-facing flows** should have integration test coverage under [`crates/integration/`](crates/integration/) where feasible.
+
+Run unit tests with:
+
+```bash
+cargo nextest run
+```
 
 ## Code Style
 
 - `cargo fmt` and `cargo clippy --workspace --all-targets --all-features --tests -- -D warnings` must pass.
 - Prefer imports over path qualifiers, inline format args (`println!("{x}")`), and exhaustive `match` over `_` wildcards.
-- See [camael.md](camael.md) for the full style guide, including CamaelUI patterns and terminal model locking rules.
+- See [CLAUDE.md](CLAUDE.md) for the full style guide, including UI patterns and terminal model locking rules.
 
-## Commit and Branch Conventions
+## Commit Conventions
 
-- Branch names should be prefixed with your handle (e.g. `alice/fix-parser`).
-- Commit messages should explain *what* and *why*, not just *what*.
+- Branch names: prefix with your handle (`alice/fix-parser`).
+- Commit messages: explain *what* and *why*, not just *what*.
+- Follow the existing `type(scope): message` format visible in `git log`.
+
+## License Compliance
+
+Camael is dual-licensed under [AGPL v3](LICENSE-AGPL) and [MIT](LICENSE-MIT). Every contribution must comply with both:
+
+- **Do not introduce license-incompatible dependencies.**
+- **Preserve copyright headers** in existing files.
+- **Do not add network calls or telemetry** — this is both a design constraint and an AGPL source-availability requirement.
+- **Document the origin of any copied third-party code** in a comment above the snippet.
+
+See [CLAUDE.md](CLAUDE.md) for the full license compliance rules.
 
 ## Code of Conduct
 
-This project adopts the [Contributor Covenant](https://www.contributor-covenant.org/) (v2.1) as its code of conduct. All contributors and maintainers are expected to follow it in every project space. See [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) for the full text, or report violations to camael-coc at camael.dev.
+This project follows the [Contributor Covenant](https://www.contributor-covenant.org/) (v2.1). See [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) for the full text.
 
 ## Reporting Security Issues
 
-See [`SECURITY.md`](SECURITY.md) for our security disclosure policy and private reporting channels. **Do not open public issues for security vulnerabilities.**
+See [`SECURITY.md`](SECURITY.md) for the security disclosure policy. **Do not open public issues for security vulnerabilities.**
 
 ## Getting Help
 
-- Browse the [Camael docs](https://docs.warp.dev/).
-- Open a [GitHub issue](https://github.com/warpdotdev/camael/issues) for bugs or feature requests.
+- Open a [GitHub issue](https://github.com/pancudaniel7/camael/issues) for bugs or feature requests.
+- For questions about the codebase, open a GitHub Discussion or comment on the relevant issue.
