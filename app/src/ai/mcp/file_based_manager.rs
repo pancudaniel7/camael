@@ -244,7 +244,7 @@ impl FileBasedMCPManager {
     /// config location.
     ///
     /// "Global" means the installation was detected outside of a user repository:
-    /// - For `MCPProvider::Warp`: the logical root for `~/.warp*/.mcp.json`.
+    /// - For `MCPProvider::Camael`: the logical root for `~/.warp*/.mcp.json`.
     /// - For any other provider: the user's home directory (e.g. `~/.claude.json`).
     ///
     /// Project-scoped installations (those detected inside a repo) are not considered
@@ -260,7 +260,7 @@ impl FileBasedMCPManager {
                         return false;
                     }
                     match provider {
-                        MCPProvider::Warp => Self::is_global_warp_root(root_path),
+                        MCPProvider::Camael => Self::is_global_warp_root(root_path),
                         MCPProvider::Claude | MCPProvider::Codex | MCPProvider::Agents => {
                             home_dir.as_ref().is_some_and(|home| root_path == home)
                         }
@@ -277,7 +277,7 @@ impl FileBasedMCPManager {
             .any(|(root_path, provider_map)| {
                 Self::is_global_warp_root(root_path)
                     && provider_map
-                        .get(&MCPProvider::Warp)
+                        .get(&MCPProvider::Camael)
                         .is_some_and(|hashes| hashes.contains(&hash))
             })
     }

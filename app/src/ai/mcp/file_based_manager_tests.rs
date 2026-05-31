@@ -294,7 +294,7 @@ fn test_global_warp_server_from_managed_home_root_always_spawns() {
         manager.update(&mut app, |m, ctx| {
             m.apply_parsed_servers(
                 warp_mcp_config_path.root_path.clone(),
-                MCPProvider::Warp,
+                MCPProvider::Camael,
                 parsed,
                 ctx,
             );
@@ -392,7 +392,7 @@ fn test_project_scoped_servers_never_auto_spawn() {
 
         manager.update(&mut app, |m, ctx| {
             m.apply_parsed_servers(repo_path.clone(), MCPProvider::Claude, claude_parsed, ctx);
-            m.apply_parsed_servers(repo_path.clone(), MCPProvider::Warp, warp_parsed, ctx);
+            m.apply_parsed_servers(repo_path.clone(), MCPProvider::Camael, warp_parsed, ctx);
         });
 
         // Neither detection should emit a spawn event.
@@ -446,7 +446,7 @@ fn test_project_scoped_cloud_scan_has_detected_servers_but_empty_wait_set() {
 
         manager.update(&mut app, |m, ctx| {
             m.apply_parsed_servers(repo_path.clone(), MCPProvider::Claude, claude_parsed, ctx);
-            m.apply_parsed_servers(repo_path.clone(), MCPProvider::Warp, warp_parsed, ctx);
+            m.apply_parsed_servers(repo_path.clone(), MCPProvider::Camael, warp_parsed, ctx);
             m.handle_cloud_environment_scan_complete(&repo_path, ctx);
         });
 
@@ -485,7 +485,7 @@ fn test_auto_started_cloud_scan_uuids_are_in_wait_set() {
         let events = subscribe_events(&mut app, &manager);
 
         manager.update(&mut app, |m, ctx| {
-            m.apply_parsed_servers(root_path.clone(), MCPProvider::Warp, parsed, ctx);
+            m.apply_parsed_servers(root_path.clone(), MCPProvider::Camael, parsed, ctx);
             m.handle_cloud_environment_scan_complete(&root_path, ctx);
         });
 

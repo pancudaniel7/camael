@@ -9,7 +9,6 @@ use warpui::assets::asset_cache::{AssetCache, AssetSource};
 use warpui::image_cache::ImageType;
 use warpui::{Entity, ModelContext, SingletonEntity};
 
-use crate::autoupdate::{self};
 use crate::channel::{Channel, ChannelState};
 use crate::features::{FeatureFlag, PREVIEW_FLAGS};
 use crate::server::server_api::ServerApi;
@@ -54,12 +53,7 @@ impl ChangelogModel {
                 self.changelog = ChangelogState::Pending;
                 let server_api = self.server_api.clone();
                 let _ = ctx.spawn(
-                    async move {
-                        (
-                            request_type,
-                            autoupdate::get_current_changelog(server_api).await,
-                        )
-                    },
+                    async move { (request_type, Ok(None)) },
                     Self::handle_changelog_check,
                 );
             }
