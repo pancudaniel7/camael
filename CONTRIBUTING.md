@@ -1,9 +1,9 @@
-# Contributing to Warp
+# Contributing to Camael
 
-Thanks for helping improve Warp! This guide explains how to open issues, propose changes, and get your work reviewed.
+Thanks for helping improve Camael! This guide explains how to open issues, propose changes, and get your work reviewed.
 
 > [!TIP]
-> **Chat with us in Slack.** Connect with other contributors and the Warp team in the [`#oss-contributors`](https://warpcommunity.slack.com/archives/C0B0LM8N4DB) channel — a good place for ad-hoc questions, design discussion, and pairing with maintainers as you work through an issue or PR. New here? [Join the Warp Slack community](https://go.camael.dev/join-preview) first, then hop into `#oss-contributors`.
+> **Chat with us in Slack.** Connect with other contributors and the Camael team in the [`#oss-contributors`](https://warpcommunity.slack.com/archives/C0B0LM8N4DB) channel — a good place for ad-hoc questions, design discussion, and pairing with maintainers as you work through an issue or PR. New here? [Join the Camael Slack community](https://go.camael.dev/join-preview) first, then hop into `#oss-contributors`.
 
 ## TL;DR
 
@@ -13,34 +13,34 @@ Thanks for helping improve Warp! This guide explains how to open issues, propose
 - Oz automatically triages incoming issues and reviews open PRs.
 - Implementation PRs must include proof of manual testing.
 
-## How Contributing to Warp Works
+## How Contributing to Camael Works
 
-Warp's contribution model is shaped by [Oz](https://oz.camael.dev), an agent that automates parts of triage, spec writing, implementation, and review. Compared with a typical open-source repository, a few things work differently here:
+Camael's contribution model is shaped by [Oz](https://oz.camael.dev), an agent that automates parts of triage, spec writing, implementation, and review. Compared with a typical open-source repository, a few things work differently here:
 
 - **Issues are the starting point for everything.** Discussion, scoping, and design happen on the issue before any PR is opened.
 - **Feature requests differ from bug fixes:**
   - Features are gated by readiness labels — `ready-to-spec`, then `ready-to-implement` once the design is settled — that signal when contributors can pick up the work. Discussion alone is not approval to begin work.
   - Feature work needs a written spec first: feature requests go through a spec PR (a *product spec* + *tech spec* committed under [`specs/`](specs/)) before any code is written.
   - Bug fixes can go straight to a code PR once the report is reproducible or otherwise actionable; they do not require spec PRs unless the scope or design is unclear.
-- **Review is largely automated.** When you open a PR, Oz is auto-assigned and produces an initial review. Once Oz approves, it automatically requests a follow-up review from a Warp team subject-matter expert — you do not need to assign human reviewers yourself.
+- **Review is largely automated.** When you open a PR, Oz is auto-assigned and produces an initial review. Once Oz approves, it automatically requests a follow-up review from a Camael team subject-matter expert — you do not need to assign human reviewers yourself.
 
 ### Readiness labels
 
-The Warp team applies one of the following labels when an issue is ready for contribution:
+The Camael team applies one of the following labels when an issue is ready for contribution:
 
 - **`ready-to-spec`** — The problem is understood but the design is open. Open a spec PR with a *product spec* (`product.md`) and a *tech spec* (`tech.md`) under [`specs/`](specs/) — see [Opening a Spec PR](#opening-a-spec-pr) for what goes in each. This label is **reserved for feature requests**.
 - **`ready-to-implement`** — The issue is ready for a code PR. For bugs, this means the report is sufficiently reproducible or actionable and the likely fix does not need a spec, mocks, or deeper investigation.
-- **`needs-mocks`** — Design mocks are required before implementation can begin. Wait for the Warp team to land them.
+- **`needs-mocks`** — Design mocks are required before implementation can begin. Wait for the Camael team to land them.
 
 Anyone can pick up a ready issue — readiness labels are not assignments, and the best implementation wins through normal review. If an issue has been sitting un-triaged or you'd like readiness re-evaluated, mention **@oss-maintainers** in a comment to flag it for the team.
 
 ## Contribution Flow
 
-Steps owned by you (the contributor) are shown in yellow; steps owned by the Warp team or Oz are shown in blue.
+Steps owned by you (the contributor) are shown in yellow; steps owned by the Camael team or Oz are shown in blue.
 
 ```mermaid
 flowchart TD
-    A[File an issue] --> B{Warp team triages}
+    A[File an issue] --> B{Camael team triages}
     B -- ready-to-spec<br/>(feature requests) --> C[Open spec PR<br/>product.md + tech.md]
     B -- needs-mocks --> D[Design mocks produced]
     D --> E[Open code PR]
@@ -49,16 +49,16 @@ flowchart TD
     E --> F[Oz review → SME review → CI → merge]
 
     classDef contributor fill:#fef3c7,stroke:#b45309,color:#78350f;
-    classDef warpTeam fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a;
+    classDef CamaelTeam fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a;
     class A,C,E contributor;
-    class B,D,F warpTeam;
+    class B,D,F CamaelTeam;
 ```
 
 ## Filing a Good Issue
 
-Search [existing issues](https://github.com/warpdotdev/camael/issues) before filing to avoid duplicates. Use the issue templates when filing.
+Search [existing issues](https://github.com/Camaeldotdev/camael/issues) before filing to avoid duplicates. Use the issue templates when filing.
 
-If you're already running Warp, the fastest way to file is the `/feedback` command — it opens a public GitHub issue with relevant context (logs, environment details) automatically attached.
+If you're already running Camael, the fastest way to file is the `/feedback` command — it opens a public GitHub issue with relevant context (logs, environment details) automatically attached.
 
 ### Bug reports
 
@@ -67,7 +67,7 @@ A good bug report includes:
 - A clear title and a one-paragraph summary of the problem.
 - Steps to reproduce (with a minimal example where possible).
 - Expected vs. actual behavior.
-- Warp version and OS (see `Settings → About`).
+- Camael version and OS (see `Settings → About`).
 - Logs, screenshots, or screen recordings when relevant.
 
 Once an issue is triaged as an actionable bug (by Oz's triage agent or a maintainer), it may be labeled **`ready-to-implement`** so you can pick it up and open a code PR.
@@ -108,7 +108,7 @@ For issues labeled `ready-to-implement`:
 4. Open a PR using the [pull request template](.github/pull_request_template.md) and add a changelog entry (`CHANGELOG-NEW-FEATURE`, `CHANGELOG-IMPROVEMENT`, or `CHANGELOG-BUG-FIX`); omit only for docs-only or refactoring-only changes.
 5. Keep the PR focused on a single logical change and merge `master` in before the PR enters review.
 
-You **do not need to manually request reviewers**. Oz is auto-assigned to PRs that target a ready issue and produces an initial review. After Oz approves, it automatically requests a follow-up review from the appropriate Warp team subject-matter expert.
+You **do not need to manually request reviewers**. Oz is auto-assigned to PRs that target a ready issue and produces an initial review. After Oz approves, it automatically requests a follow-up review from the appropriate Camael team subject-matter expert.
 
 After you push changes that address Oz's feedback, comment `/oz-review` on the PR to request a re-review — you can do this up to **three times** per PR. If something looks stuck or you need more reviews than that, mention **@oss-maintainers** on the PR to escalate to the team.
 
@@ -118,7 +118,7 @@ If a maintainer requests changes to your PR, you will need to request `/oz-revie
 
 ## Using a Coding Agent
 
-You can use **any coding agent** to implement a contribution — for example, Warp's built-in agent, Claude Code, Codex, Gemini CLI, or others — or no agent at all. This repository ships agent-readable context (skills under [`.agents/skills/`](.agents/skills/), specs under [`specs/`](specs/), and [`camael.md`](camael.md)) that any harness supporting these formats can pick up.
+You can use **any coding agent** to implement a contribution — for example, Camael's built-in agent, Claude Code, Codex, Gemini CLI, or others — or no agent at all. This repository ships agent-readable context (skills under [`.agents/skills/`](.agents/skills/), specs under [`specs/`](specs/), and [`camael.md`](camael.md)) that any harness supporting these formats can pick up.
 
 If you'd rather have an **Oz cloud agent** implement a ready issue for you, mention **@oss-maintainers** on the issue to request it. Approved requests run **for free** on complimentary Oz credits — you don't need to set up your own Oz account or pay for compute.
 
@@ -128,8 +128,8 @@ While you can use coding agents for implementation, we expect contributors to **
 
 All pull requests go through a two-stage review process:
 
-1. **Oz review** — When you open a PR, [Oz](https://camael.dev/oz) is automatically assigned and produces the first review. Oz checks for correctness, style, test coverage, and alignment with the linked issue and any associated specs.
-2. **Warp team review** — Only after Oz has **approved** the PR is it routed to a Warp team subject-matter expert for a final human review. PRs that have not yet been approved by Oz will not be assigned to a team member.
+1. **Oz review** — When you open a PR, [Oz](https://warp.dev/oz) is automatically assigned and produces the first review. Oz checks for correctness, style, test coverage, and alignment with the linked issue and any associated specs.
+2. **Camael team review** — Only after Oz has **approved** the PR is it routed to a Camael team subject-matter expert for a final human review. PRs that have not yet been approved by Oz will not be assigned to a team member.
 
 You do not need to manually request reviewers at any stage. After pushing changes that address Oz's feedback, comment `/oz-review` on the PR to request a re-review — you can do this up to **three times** per PR. If something looks stuck or you need additional reviews, mention **@oss-maintainers** on the PR to escalate to the team.
 
@@ -139,7 +139,7 @@ See [README.md](README.md) and [camael.md](camael.md) for the full engineering g
 
 ```bash
 ./script/bootstrap   # platform-specific setup
-cargo run            # build and run Warp
+cargo run            # build and run Camael
 ./script/presubmit   # fmt, clippy, and tests
 ```
 
@@ -163,7 +163,7 @@ Run unit tests with `cargo nextest run`.
 
 - `cargo fmt` and `cargo clippy --workspace --all-targets --all-features --tests -- -D warnings` must pass.
 - Prefer imports over path qualifiers, inline format args (`println!("{x}")`), and exhaustive `match` over `_` wildcards.
-- See [camael.md](camael.md) for the full style guide, including WarpUI patterns and terminal model locking rules.
+- See [camael.md](camael.md) for the full style guide, including CamaelUI patterns and terminal model locking rules.
 
 ## Commit and Branch Conventions
 
@@ -180,6 +180,5 @@ See [`SECURITY.md`](SECURITY.md) for our security disclosure policy and private 
 
 ## Getting Help
 
-- Chat with other contributors and the Warp team in [`#oss-contributors`](https://warpcommunity.slack.com/archives/C0B0LM8N4DB) on the [Warp Slack community](https://go.camael.dev/join-preview) (join the workspace first if you're new).
-- Browse the [Warp docs](https://docs.camael.dev/).
+- Browse the [Camael docs](https://docs.warp.dev/).
 - Open a [GitHub issue](https://github.com/warpdotdev/camael/issues) for bugs or feature requests.

@@ -256,6 +256,7 @@ impl SettingsSection {
                 | Self::CodeIndexing
                 | Self::CloudEnvironments
                 | Self::OzCloudAPIKeys
+                | Self::Privacy
         ) || self.is_ai_subpage()
     }
 
