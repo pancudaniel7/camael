@@ -50,7 +50,7 @@ pub enum Host {
 impl Host {
     fn display_name(&self) -> &str {
         match self {
-            Host::Warp => "Camael",
+            Host::Camael => "Camael",
             Host::SelfHosted { slug } => slug.as_str(),
         }
     }
@@ -58,7 +58,7 @@ impl Host {
     /// Returns the value to send as `worker_host` in the config snapshot.
     pub fn worker_host_value(&self) -> Option<String> {
         match self {
-            Host::Warp => Some(ORCHESTRATION_WARP_WORKER_HOST.to_string()),
+            Host::Camael => Some(ORCHESTRATION_WARP_WORKER_HOST.to_string()),
             Host::SelfHosted { slug } => Some(slug.clone()),
         }
     }
@@ -94,7 +94,7 @@ impl HostSelector {
         // field is exercised at construction time (not just written to on
         // `SelectHost`), so it stays out of clippy's `field is never read`
         // warning while still serving as the source of truth for the label.
-        let selected = Host::Warp;
+        let selected = Host::Camael;
         let initial_label = selected.display_name().to_string();
 
         let button = ctx.add_typed_action_view(|_ctx| {
@@ -147,7 +147,7 @@ impl HostSelector {
             .as_deref()
         {
             let restored = if saved_slug == ORCHESTRATION_WARP_WORKER_HOST {
-                Host::Warp
+                Host::Camael
             } else {
                 Host::SelfHosted {
                     slug: saved_slug.to_string(),
@@ -301,10 +301,10 @@ fn build_menu_items(
     if let Some(host) = default_host {
         items.push(item_for(host.clone()));
     }
-    items.push(item_for(Host::Warp));
+    items.push(item_for(Host::Camael));
     let default_slug = match default_host {
         Some(Host::SelfHosted { slug }) => Some(slug.as_str()),
-        Some(Host::Warp) | None => None,
+        Some(Host::Camael) | None => None,
     };
     let mut connected_hosts = ConnectedSelfHostedWorkersModel::as_ref(ctx)
         .worker_hosts_excluding(default_slug)
