@@ -261,12 +261,12 @@ pub async fn make_authenticated_client(
             log::warn!(
                 "File-based MCP server {uuid} requires OAuth authentication; \
                  skipping in headless mode. To use this server, authenticate it \
-                 in the Warp desktop app first."
+                 in the Camael desktop app first."
             );
         }
         return Err(AuthError::AuthorizationFailed(
             "MCP server requires OAuth authentication. Please authenticate this server in the \
-             Warp desktop app first, then try again."
+             Camael desktop app first, then try again."
                 .to_string(),
         ));
     }
@@ -309,7 +309,7 @@ pub async fn make_authenticated_client(
         // Try dynamic client registration.
         let mut oauth_state = OAuthState::Unauthorized(auth_manager);
         oauth_state
-            .start_authorization(&[], &redirect_uri, Some("Warp"))
+            .start_authorization(&[], &redirect_uri, Some("Camael"))
             .await?;
         oauth_state
     };

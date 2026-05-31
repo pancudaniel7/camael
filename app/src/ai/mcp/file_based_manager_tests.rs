@@ -304,7 +304,7 @@ fn test_global_warp_server_from_managed_home_root_always_spawns() {
             assert_eq!(
                 e.spawned_uuids.len(),
                 1,
-                "Managed Warp MCP config should auto-spawn regardless of toggle"
+                "Managed Camael MCP config should auto-spawn regardless of toggle"
             );
         });
 
@@ -315,7 +315,7 @@ fn test_global_warp_server_from_managed_home_root_always_spawns() {
         events.update(&mut app, |e, _| {
             assert!(
                 e.despawned_uuids.is_empty(),
-                "Managed Warp MCP config should never be despawned by toggle changes, got: {:?}",
+                "Managed Camael MCP config should never be despawned by toggle changes, got: {:?}",
                 e.despawned_uuids
             );
         });
@@ -497,7 +497,7 @@ fn test_auto_started_cloud_scan_uuids_are_in_wait_set() {
             assert_eq!(scan.wait_server_uuids, e.spawned_uuids);
             assert!(
                 scan.detected_servers[0].auto_start_eligible,
-                "Global Warp server should be auto-start eligible"
+                "Global Camael server should be auto-start eligible"
             );
         });
     });

@@ -1147,14 +1147,14 @@ where
             // Received a Warp OSC used for in-band generators.
             WARP_IN_BAND_GENERATOR_OSC_MARKER => match params.get(1) {
                 Some(&WARP_IN_BAND_GENERATOR_START_BYTE) => {
-                    log::info!("Received a Warp OSC marker for starting in-band command output.");
+                    log::info!("Received a Camael OSC marker for starting in-band command output.");
                     self.handler.start_in_band_command_output();
                 }
                 Some(&WARP_IN_BAND_GENERATOR_END_BYTE) => {
                     self.handler.end_in_band_command_output(true);
                 }
                 _ => {
-                    log::warn!("Received a Warp OSC marker missing required param.");
+                    log::warn!("Received a Camael OSC marker missing required param.");
                 }
             },
 
@@ -1176,12 +1176,12 @@ where
                             .get(2)
                             .map(|osc_data| String::from_utf8_lossy(osc_data))
                         else {
-                            log::error!("Warp OSC marker did not contain payload");
+                            log::error!("Camael OSC marker did not contain payload");
                             return;
                         };
                         safe_debug!(
-                            safe: ("Received Warp OSC string for shell hook"),
-                            full: ("Received Warp OSC string for shell hook with JSON payload: {:?}", data_str)
+                            safe: ("Received Camael OSC string for shell hook"),
+                            full: ("Received Camael OSC string for shell hook with JSON payload: {:?}", data_str)
                         );
                         let decoded_data = hex::decode(&*data_str);
                         self.handle_decoded_data(decoded_data);
@@ -1192,12 +1192,12 @@ where
                             .get(2)
                             .map(|osc_data| String::from_utf8_lossy(osc_data))
                         else {
-                            log::error!("Warp OSC marker did not contain payload");
+                            log::error!("Camael OSC marker did not contain payload");
                             return;
                         };
                         safe_debug!(
-                            safe: ("Received Warp OSC string for shell hook"),
-                            full: ("Received Warp OSC string for shell hook with JSON payload: {:?}", data_str)
+                            safe: ("Received Camael OSC string for shell hook"),
+                            full: ("Received Camael OSC string for shell hook with JSON payload: {:?}", data_str)
                         );
                         let hook = serde_json::from_str::<DProtoHook>(&data_str);
                         self.handle_unencoded_hook(hook)
@@ -1210,7 +1210,7 @@ where
             }
 
             WARP_RESET_GRID_OSC_MARKER => {
-                log::debug!("Received Warp OSC string for reset grid");
+                log::debug!("Received Camael OSC string for reset grid");
                 self.handler.on_reset_grid();
             }
 
@@ -1222,7 +1222,7 @@ where
                         .map(|osc_data| String::from_utf8_lossy(osc_data))
                         .and_then(|format| CompletionsShellData::from_format_type(&format))
                     else {
-                        log::warn!("Warp start completions OSC marker contained invalid format.");
+                        log::warn!("Camael start completions OSC marker contained invalid format.");
                         return;
                     };
                     self.handler.start_completions_output(format);
@@ -1237,7 +1237,7 @@ where
                         .map(|osc_data| String::from_utf8_lossy(osc_data))
                     else {
                         log::warn!(
-                            "Warp completions match result OSC marker did not contain payload"
+                            "Camael completions match result OSC marker did not contain payload"
                         );
                         return;
                     };
@@ -1261,7 +1261,7 @@ where
                         .map(|osc_data| String::from_utf8_lossy(osc_data))
                     else {
                         log::warn!(
-                            "Warp completions match metadata OSC marker did not contain payload"
+                            "Camael completions match metadata OSC marker did not contain payload"
                         );
                         return;
                     };
@@ -1276,7 +1276,7 @@ where
                             );
                         }
                         _ => {
-                            log::warn!("Invalid Warp OSC marker parameter for completions match metadata: {parameter}");
+                            log::warn!("Invalid Camael OSC marker parameter for completions match metadata: {parameter}");
                         }
                     }
                 }
@@ -1284,7 +1284,7 @@ where
                     self.handler.send_completions_prompt();
                 }
                 _ => {
-                    log::warn!("Received a Warp OSC completions marker missing required param.");
+                    log::warn!("Received a Camael OSC completions marker missing required param.");
                 }
             },
 

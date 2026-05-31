@@ -588,7 +588,7 @@ pub(crate) fn home_config_file_path(provider: MCPProvider) -> Option<PathBuf> {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter)]
 pub enum MCPProvider {
-    Warp,
+    Camael,
     Claude,
     Codex,
     Agents,
@@ -597,7 +597,7 @@ pub enum MCPProvider {
 impl MCPProvider {
     pub fn display_name(&self) -> &str {
         match self {
-            MCPProvider::Warp => "Warp",
+            MCPProvider::Warp => "Camael",
             MCPProvider::Claude => "Claude",
             MCPProvider::Codex => "Codex",
             MCPProvider::Agents => "Other Agents",

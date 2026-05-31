@@ -106,7 +106,7 @@ use crate::{
     GlobalResourceHandles, GlobalResourceHandlesProvider, UpdateQuakeModeEventArg,
 };
 
-const WINDOW_TITLE: &str = "Warp";
+const WINDOW_TITLE: &str = "Camael";
 
 lazy_static! {
     static ref FALLBACK_WINDOW_SIZE: Vector2F = vec2f(800.0, 600.0);
@@ -703,7 +703,7 @@ fn open_from_restored(arg: &OpenFromRestoredArg, ctx: &mut AppContext) {
                         AddWindowOptions {
                             window_style: WindowStyle::Pin,
                             window_bounds: WindowBounds::ExactPosition(frame_args.window_bounds),
-                            title: Some("Warp".to_owned()),
+                            title: Some("Camael".to_owned()),
                             fullscreen_state: window.fullscreen_state,
                             background_blur_radius_pixels,
                             background_blur_texture,
@@ -746,7 +746,7 @@ fn open_from_restored(arg: &OpenFromRestoredArg, ctx: &mut AppContext) {
                         ctx.add_window(
                             AddWindowOptions {
                                 window_bounds: WindowBounds::new(window.bounds),
-                                title: Some("Warp".to_owned()),
+                                title: Some("Camael".to_owned()),
                                 fullscreen_state: window.fullscreen_state,
                                 background_blur_radius_pixels,
                                 background_blur_texture,
@@ -798,7 +798,7 @@ fn open_from_restored(arg: &OpenFromRestoredArg, ctx: &mut AppContext) {
                 ctx.add_window(
                     AddWindowOptions {
                         window_bounds: WindowBounds::new(window.bounds),
-                        title: Some("Warp".to_owned()),
+                        title: Some("Camael".to_owned()),
                         fullscreen_state: window.fullscreen_state,
                         background_blur_radius_pixels,
                         background_blur_texture,
@@ -1043,7 +1043,7 @@ fn open_linear_issue_work_in_new_window(args: &LinearIssueWork, ctx: &mut AppCon
 fn open_warp_drive_object(arg: &OpenWarpDriveObjectArgs, ctx: &mut AppContext) {
     if !product_surfaces::warp_drive_surface_enabled() {
         log::info!(
-            "Ignoring removed Warp Drive object intent for {:?}",
+            "Ignoring removed Camael Drive object intent for {:?}",
             arg.object_type
         );
         return;
@@ -1178,7 +1178,7 @@ fn default_window_options(window_settings: &WindowSettings, ctx: &AppContext) ->
     AddWindowOptions {
         window_style,
         window_bounds: next_bounds,
-        title: Some("Warp".to_owned()),
+        title: Some("Camael".to_owned()),
         background_blur_radius_pixels: Some(*window_settings.background_blur_radius),
         background_blur_texture: *window_settings.background_blur_texture,
         on_gpu_driver_selected: on_gpu_driver_selected_callback(),
@@ -1363,7 +1363,7 @@ fn toggle_quake_mode_window(global_resource_handles: &GlobalResourceHandles, ctx
                 AddWindowOptions {
                     window_style: WindowStyle::Pin,
                     window_bounds: WindowBounds::ExactPosition(config.window_bounds),
-                    title: Some("Warp".to_owned()),
+                    title: Some("Camael".to_owned()),
                     background_blur_radius_pixels: Some(*window_settings.background_blur_radius),
                     background_blur_texture: *window_settings.background_blur_texture,
                     // Ignore the quake window for positioning the next window
@@ -2548,7 +2548,7 @@ impl RootView {
     ) -> bool {
         if !product_surfaces::warp_drive_surface_enabled() {
             log::info!(
-                "Ignoring removed Warp Drive object intent for {:?}",
+                "Ignoring removed Camael Drive object intent for {:?}",
                 arg.object_type
             );
             return false;

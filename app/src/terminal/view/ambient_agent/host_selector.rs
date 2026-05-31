@@ -43,14 +43,14 @@ const MENU_HEADER_LABEL: &str = "Execution host";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Host {
-    Warp,
+    Camael,
     SelfHosted { slug: String },
 }
 
 impl Host {
     fn display_name(&self) -> &str {
         match self {
-            Host::Warp => "Warp",
+            Host::Warp => "Camael",
             Host::SelfHosted { slug } => slug.as_str(),
         }
     }

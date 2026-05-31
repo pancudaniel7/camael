@@ -228,8 +228,8 @@ impl Display for SettingsSection {
             SettingsSection::Keybindings => write!(f, "Keyboard shortcuts"),
             SettingsSection::SharedBlocks => write!(f, "Shared blocks"),
             SettingsSection::MCPServers => write!(f, "MCP Servers"),
-            SettingsSection::WarpDrive => write!(f, "Warp Drive"),
-            SettingsSection::WarpAgent => write!(f, "Warp Agent"),
+            SettingsSection::WarpDrive => write!(f, "Camael Drive"),
+            SettingsSection::WarpAgent => write!(f, "Camael Agent"),
             SettingsSection::AgentProfiles => write!(f, "Profiles"),
             SettingsSection::AgentMCPServers => write!(f, "MCP servers"),
             SettingsSection::Knowledge => write!(f, "Knowledge"),
@@ -257,6 +257,8 @@ impl SettingsSection {
                 | Self::CloudEnvironments
                 | Self::OzCloudAPIKeys
                 | Self::Privacy
+                | Self::Account
+                | Self::BillingAndUsage
         ) || self.is_ai_subpage()
     }
 
@@ -264,9 +266,9 @@ impl SettingsSection {
     /// a still-supported settings destination instead of opening disabled UI.
     pub fn normalize_for_warp_removal(section: Option<Self>) -> Option<Self> {
         section.map(|section| match section {
-            Self::AI => Self::Account,
+            Self::AI => Self::Appearance,
             Self::Code => Self::EditorAndCodeReview,
-            disabled if disabled.is_disabled_for_warp_removal() => Self::Account,
+            disabled if disabled.is_disabled_for_warp_removal() => Self::Appearance,
             other => other,
         })
     }
@@ -355,9 +357,9 @@ impl FromStr for SettingsSection {
             "Shared blocks" => Ok(Self::SharedBlocks),
             "Teams" => Ok(Self::Teams),
             "Warpify" => Ok(Self::Warpify),
-            "WarpDrive" | "Warp Drive" => Ok(Self::WarpDrive),
+            "WarpDrive" | "Camael Drive" => Ok(Self::WarpDrive),
             // This page was called "Oz" at one point, keep for backward compatibility.
-            "Oz" | "Warp Agent" => Ok(Self::WarpAgent),
+            "Oz" | "Camael Agent" => Ok(Self::WarpAgent),
             "Profiles" | "AgentProfiles" => Ok(Self::AgentProfiles),
             "MCP servers" | "AgentMCPServers" => Ok(Self::AgentMCPServers),
             "Knowledge" => Ok(Self::Knowledge),
@@ -1205,7 +1207,7 @@ impl SettingsView {
             Some(SettingsSection::AI) => SettingsSection::WarpAgent,
             Some(SettingsSection::Code) => SettingsSection::EditorAndCodeReview,
             Some(section) if section.is_subpage() => section,
-            other => other.unwrap_or(SettingsSection::BillingAndUsage),
+            other => other.unwrap_or(SettingsSection::Appearance),
         };
 
         // Auto-expand the umbrella if the initial page is one of its subpages.

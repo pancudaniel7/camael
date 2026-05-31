@@ -1903,7 +1903,7 @@ fn test_switch_focus_panels() {
         workspace.update(&mut app, |view, ctx| {
             assert!(
                 view.left_panel_view.is_self_or_child_focused(ctx),
-                "Expected Warp Drive panel to be focused"
+                "Expected Camael Drive panel to be focused"
             );
         });
 

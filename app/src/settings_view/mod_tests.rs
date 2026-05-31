@@ -53,7 +53,7 @@ fn warp_removal_disabled_sections_are_identified() {
     ] {
         assert!(
             section.is_disabled_for_warp_removal(),
-            "{section:?} should be disabled during Warp surface removal"
+            "{section:?} should be disabled during Camael surface removal"
         );
     }
 
@@ -235,7 +235,7 @@ fn match_data_countable_zero_is_not_truthy() {
 
 #[test]
 fn subpage_display_names_are_correct() {
-    assert_eq!(SettingsSection::WarpAgent.to_string(), "Warp Agent");
+    assert_eq!(SettingsSection::WarpAgent.to_string(), "Camael Agent");
     assert_eq!(SettingsSection::AgentProfiles.to_string(), "Profiles");
     assert_eq!(SettingsSection::AgentMCPServers.to_string(), "MCP servers");
     assert_eq!(SettingsSection::Knowledge.to_string(), "Knowledge");
@@ -272,7 +272,7 @@ fn subpage_from_str_parses_display_names() {
         Ok(SettingsSection::WarpAgent)
     );
     assert_eq!(
-        SettingsSection::from_str("Warp Agent"),
+        SettingsSection::from_str("Camael Agent"),
         Ok(SettingsSection::WarpAgent)
     );
     assert_eq!(
