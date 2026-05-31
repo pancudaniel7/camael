@@ -1636,7 +1636,7 @@ impl RightPanelView {
                 tv.read(ctx, |t, ctx| {
                     t.active_cli_agent(ctx)
                         .map(ReviewDestination::Cli)
-                        .unwrap_or(ReviewDestination::Warp)
+                        .unwrap_or(ReviewDestination::Camael)
                 })
             })
             .unwrap_or(ReviewDestination::None);

@@ -211,7 +211,7 @@ pub fn resolve_file_target_with_editor_choice(
     }
 
     // 2. Warp Code Editor (Explicit user preference)
-    if is_openable_in_warp && matches!(editor_choice, EditorChoice::Warp) {
+    if is_openable_in_warp && matches!(editor_choice, EditorChoice::Camael) {
         return FileTarget::CodeEditor(layout);
     }
 
@@ -229,7 +229,7 @@ pub fn resolve_file_target_with_editor_choice(
     match editor_choice {
         EditorChoice::ExternalEditor(editor) => FileTarget::ExternalEditor(editor),
         EditorChoice::SystemDefault => FileTarget::SystemDefault,
-        EditorChoice::Warp | EditorChoice::EnvEditor => unreachable!("Already matched above"),
+        EditorChoice::Camael | EditorChoice::EnvEditor => unreachable!("Already matched above"),
     }
 }
 
@@ -257,7 +257,7 @@ mod tests {
 
         assert_eq!(
             OpenCodePanelsFileEditor::default_value(),
-            EditorChoice::Warp
+            EditorChoice::Camael
         );
     }
 
@@ -280,7 +280,7 @@ mod tests {
     fn test_resolve_file_target_warp_uses_default_layout() {
         let target = resolve_file_target_with_editor_choice(
             Path::new("data.txt"),
-            EditorChoice::Warp,
+            EditorChoice::Camael,
             true, /* prefer_markdown_viewer */
             EditorLayout::NewTab,
             None,
@@ -294,7 +294,7 @@ mod tests {
     fn test_resolve_file_target_binary_is_system_generic() {
         let target = resolve_file_target_with_editor_choice(
             Path::new("image.png"),
-            EditorChoice::Warp,
+            EditorChoice::Camael,
             true, /* prefer_markdown_viewer */
             EditorLayout::SplitPane,
             None,

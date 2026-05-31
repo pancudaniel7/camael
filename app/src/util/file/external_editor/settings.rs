@@ -53,7 +53,7 @@ impl<'de> Deserialize<'de> for EditorChoice {
         match EditorChoiceCompat::deserialize(deserializer)? {
             EditorChoiceCompat::New(inner) => match inner {
                 EditorChoiceInner::SystemDefault => Ok(EditorChoice::SystemDefault),
-                EditorChoiceInner::Warp => Ok(EditorChoice::Warp),
+                EditorChoiceInner::Camael => Ok(EditorChoice::Camael),
                 EditorChoiceInner::EnvEditor => Ok(EditorChoice::EnvEditor),
                 EditorChoiceInner::ExternalEditor(editor) => {
                     Ok(EditorChoice::ExternalEditor(editor))
@@ -80,7 +80,7 @@ define_settings_group!(EditorSettings, settings: [
     },
     open_code_panels_file_editor: OpenCodePanelsFileEditor {
         type: EditorChoice,
-        default: EditorChoice::Warp,
+        default: EditorChoice::Camael,
         supported_platforms: SupportedPlatforms::ALL,
         sync_to_cloud: SyncToCloud::Never,
         private: false,

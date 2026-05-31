@@ -934,7 +934,7 @@ impl CommentListView {
         let enable_send = match &self.review_destination {
             ReviewDestination::None => false,
             ReviewDestination::Cli(_) => has_sendable_comments,
-            ReviewDestination::Warp => ai_available && has_sendable_comments,
+            ReviewDestination::Camael => ai_available && has_sendable_comments,
         };
 
         let tooltip_text = Self::send_button_tooltip_text(

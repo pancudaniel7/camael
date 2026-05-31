@@ -251,7 +251,7 @@ pub fn should_show_open_in_warp_link(path: &Path, app: &AppContext) -> bool {
 
     let settings = EditorSettings::as_ref(app);
 
-    if matches!(*settings.open_file_editor, EditorChoice::Warp) {
+    if matches!(*settings.open_file_editor, EditorChoice::Camael) {
         return false;
     }
 
