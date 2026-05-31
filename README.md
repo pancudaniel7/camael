@@ -4,9 +4,9 @@
 
 Camael is a terminal environment built for engineers who simply can't use the cloud — not because they don't want to, but because their work won't allow it.
 
-If you work in finance, defense, healthcare, or government, you know the situation. Security policies are strict, audits are real, and sending code or context to an external service isn't a gray area — it's a hard no. But most modern developer tools have quietly moved in the opposite direction, baking in telemetry, AI calls, and cloud sync as defaults. That leaves a lot of engineers choosing between productivity and compliance.
+If you work in finance, defense, healthcare, or government, you know the situation. Security policies are strict, audits are real, and sending code or context to an external service isn't a gray area, it's a hard no. But most modern developer tools have quietly moved in the opposite direction, baking in telemetry, AI calls, and cloud sync as defaults. That leaves a lot of engineers choosing between productivity and compliance.
 
-Camael doesn't make you choose. It runs entirely on your machine — no telemetry, no outbound requests, nothing leaving your environment without your knowledge. Just a fast, capable terminal UI that respects the rules you have to work under.
+Camael doesn't make you choose. It runs entirely on your machine, no telemetry, no outbound requests, nothing leaving your environment without your knowledge. Just a fast, capable terminal UI that respects the rules you have to work under.
 
 The client is open source under [AGPL v3](LICENSE-AGPL), and the UI framework crates (`warpui_core`, `warpui`) are available under the [MIT license](LICENSE-MIT).
 
