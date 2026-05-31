@@ -227,8 +227,6 @@ fn enabled_features() -> HashSet<FeatureFlag> {
         FeatureFlag::LinkedCodeBlocks,
         #[cfg(feature = "tabbed_editor_view")]
         FeatureFlag::TabbedEditorView,
-        #[cfg(feature = "send_telemetry_to_file")]
-        FeatureFlag::SendTelemetryToFile,
         #[cfg(feature = "undo_closed_panes")]
         FeatureFlag::UndoClosedPanes,
         #[cfg(feature = "multi_profile")]

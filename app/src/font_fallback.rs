@@ -103,7 +103,12 @@ lazy_static! {
     };
 }
 
-pub fn fallback_font_fn(ch: char) -> Option<ExternalFontFamily> {
+pub fn fallback_font_fn(_ch: char) -> Option<ExternalFontFamily> {
+    None
+}
+
+#[allow(dead_code)]
+fn _fallback_font_fn_disabled(ch: char) -> Option<ExternalFontFamily> {
     match ch {
         '\u{007F}'..='\u{007F}'
         | '\u{21EA}'..='\u{21EA}'
