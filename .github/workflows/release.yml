@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_macos:
+    name: Build macOS DMG (${{ matrix.dmg_suffix }})
+    runs-on: macos-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: aarch64
+            dmg_suffix: arm64
+            rust_target: aarch64-apple-darwin
+          - arch: x86_64
+            dmg_suffix: x86_64
+            rust_target: x86_64-apple-darwin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Fetch Git LFS objects
+        run: git lfs pull
+
+      - name: Install Rust toolchain
+        run: rustup target add ${{ matrix.rust_target }}
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: macos-${{ matrix.arch }}-release
+
+      - name: Install protoc
+        uses: ConorMacBride/install-package@v1
+        with:
+          brew: protobuf
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Install cargo-binstall
+        run: cargo install cargo-binstall --locked
+
+      - name: Install cargo-bundle
+        run: cargo binstall cargo-bundle --no-confirm
+
+      - name: Install macOS build dependencies
+        run: ./script/macos/install_build_deps
+
+      - name: Build and bundle (${{ matrix.dmg_suffix }})
+        id: bundle
+        run: |
+          script/bundle \
+            --channel oss \
+            --arch ${{ matrix.arch }} \
+            --dmg-name-suffix ${{ matrix.dmg_suffix }}
+        env:
+          GIT_RELEASE_TAG: ${{ github.ref_name }}
+
+      - name: Upload DMG to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.bundle.outputs.dmg_path }}
+          token: ${{ secrets.GITHUB_TOKEN }}
