@@ -1,3 +1,10 @@
+# Git Workflow
+
+- **Never run `git commit`** — the user handles all commits.
+- **Never add `Co-Authored-By`** trailers to commit messages.
+- You may stage files with `git add` only when explicitly asked.
+- When changes are ready to commit, tell the user the suggested commit message and let them run it.
+
 # License Compliance
 
 This repository is distributed under two licenses: **MIT** (`LICENSE-MIT`) and **AGPL-3.0** (`LICENSE-AGPL`). Every code modification must comply with both licenses.
