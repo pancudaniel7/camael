@@ -22,6 +22,21 @@ The rest of the code in this repository is licensed under the [AGPL v3](LICENSE-
 
 Camael's client codebase is open source and lives in this repository. We welcome community contributions and have designed a lightweight workflow to help new contributors get started. For the full contribution flow, read our [CONTRIBUTING.md](CONTRIBUTING.md) guide.
 
+### Install via Homebrew
+
+The easiest way to install Camael on macOS is via the Homebrew tap:
+
+```bash
+brew tap pancudaniel7/camael
+brew install --cask camael
+```
+
+To upgrade to the latest version:
+
+```bash
+brew upgrade --cask camael
+```
+
 ### Building the Repo Locally
 
 To build and run Camael from source:
