@@ -51,7 +51,7 @@ nbdist/
 .#*
 
 # Go
-bin/
+/bin/
 pkg/
 *.test
 *.out
