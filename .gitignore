@@ -141,7 +141,9 @@ override.tf.json
 *.jks
 *.keystore
 secrets.*
+!secrets.rs
 secret.*
+!secret.rs
 
 # Logs
 logs/
