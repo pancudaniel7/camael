@@ -60,8 +60,11 @@ jobs:
       - name: Install cargo-binstall
         run: cargo install cargo-binstall --locked
 
-      - name: Install cargo-bundle and cargo-about
-        run: cargo binstall cargo-bundle cargo-about --no-confirm
+      - name: Install cargo-bundle
+        run: cargo binstall cargo-bundle --no-confirm
+
+      - name: Install cargo-about
+        run: cargo install cargo-about@0.8.4 --locked
 
       - name: Build and bundle (${{ matrix.dmg_suffix }})
         id: bundle
