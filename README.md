@@ -1,5 +1,12 @@
-# Camael
+<p align="center">
+  <img src="images/camael_hero.png" alt="Camael Hero" />
+</p>
 
+<br />
+
+<img src="app/channels/oss/icon/no-padding/128x128.png" alt="Camael" width="64" height="64" align="left" style="margin-right: 12px;" />
+
+# Camael
 [![Forked from Warp](https://img.shields.io/badge/forked%20from-warpdotdev%2Fwarp-blue?logo=github)](https://github.com/warpdotdev/Warp)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE-AGPL)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
@@ -29,6 +36,12 @@ The easiest way to install Camael on macOS is via the Homebrew tap:
 ```bash
 brew tap pancudaniel7/camael
 brew install --cask camael
+```
+
+If macOS blocks the app on first launch with a "damaged" warning, run:
+
+```bash
+xattr -cr /Applications/Camael.app
 ```
 
 To upgrade to the latest version:
