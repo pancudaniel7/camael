@@ -287,7 +287,7 @@ jobs:
         # Run this step even when the tests fail. Skip if the workflow is cancelled.
         if: ${{ !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@95a0fb8b29e45b6068304261fb518644b426a803 # v2.0.8
+        uses: trunk-io/analytics-uploader@1198efcc0976501147b10a7e343c3fa069527526 # v2.0.9
         with:
           junit-paths: target/nextest/ci/junit.xml
           cli-version: 0.12.5
@@ -312,7 +312,7 @@ jobs:
         # Run this step even when the tests fail. Skip if the workflow is cancelled.
         if: ${{ matrix.os != 'windows' && !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@95a0fb8b29e45b6068304261fb518644b426a803 # v2.0.8
+        uses: trunk-io/analytics-uploader@1198efcc0976501147b10a7e343c3fa069527526 # v2.0.9
         with:
           junit-paths: target/nextest/ci/junit.xml
           cli-version: 0.12.5
@@ -335,7 +335,7 @@ jobs:
         # Run this step even when the tests fail. Skip if the workflow is cancelled.
         if: ${{ matrix.os != 'windows' && !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@95a0fb8b29e45b6068304261fb518644b426a803 # v2.0.8
+        uses: trunk-io/analytics-uploader@1198efcc0976501147b10a7e343c3fa069527526 # v2.0.9
         with:
           junit-paths: target/nextest/ci/junit.xml
           cli-version: 0.12.5
@@ -361,7 +361,7 @@ jobs:
         # Run this step even when the tests fail. Skip if the workflow is cancelled.
         if: ${{ matrix.os != 'windows' && !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@95a0fb8b29e45b6068304261fb518644b426a803 # v2.0.8
+        uses: trunk-io/analytics-uploader@1198efcc0976501147b10a7e343c3fa069527526 # v2.0.9
         with:
           junit-paths: target/nextest/ci/junit.xml
           cli-version: 0.12.5
@@ -384,7 +384,7 @@ jobs:
         # Run this step even when the tests fail. Skip if the workflow is cancelled.
         if: ${{ matrix.os != 'windows' && !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@95a0fb8b29e45b6068304261fb518644b426a803 # v2.0.8
+        uses: trunk-io/analytics-uploader@1198efcc0976501147b10a7e343c3fa069527526 # v2.0.9
         with:
           junit-paths: target/nextest/ci/junit.xml
           cli-version: 0.12.5
@@ -407,7 +407,7 @@ jobs:
         # Run this step even when the tests fail. Skip if the workflow is cancelled.
         if: ${{ matrix.os != 'windows' && !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@95a0fb8b29e45b6068304261fb518644b426a803 # v2.0.8
+        uses: trunk-io/analytics-uploader@1198efcc0976501147b10a7e343c3fa069527526 # v2.0.9
         with:
           junit-paths: target/nextest/ci/junit.xml
           cli-version: 0.12.5
@@ -430,7 +430,7 @@ jobs:
         # Run this step even when the tests fail. Skip if the workflow is cancelled.
         if: ${{ matrix.os != 'windows' && !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@95a0fb8b29e45b6068304261fb518644b426a803 # v2.0.8
+        uses: trunk-io/analytics-uploader@1198efcc0976501147b10a7e343c3fa069527526 # v2.0.9
         with:
           junit-paths: target/nextest/ci/junit.xml
           cli-version: 0.12.5
@@ -548,7 +548,7 @@ jobs:
       - name: Upload results of remote-server integration tests to trunk.io
         if: ${{ !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@95a0fb8b29e45b6068304261fb518644b426a803 # v2.0.8
+        uses: trunk-io/analytics-uploader@1198efcc0976501147b10a7e343c3fa069527526 # v2.0.9
         with:
           junit-paths: target/nextest/ci/junit.xml
           cli-version: 0.12.5
