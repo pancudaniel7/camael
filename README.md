@@ -38,7 +38,7 @@ brew tap pancudaniel7/camael
 brew install --cask camael
 ```
 
-If macOS blocks the app on first launch with a "damaged" warning, run:
+If macOS blocks the app on first launch with a "damaged" warning, this is because the current app version is an mvp, if users will use this, I will Apple validate this but until then run:
 
 ```bash
 xattr -cr /Applications/Camael.app
