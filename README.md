@@ -62,4 +62,4 @@ To build and run Camael from source:
 
 ### Code of Conduct
 
-We ask everyone to be respectful and empathetic. Camael follows the [Code of Conduct](CODE_OF_CONDUCT.md). To report violations, email camael-coc at camael.dev.
+We ask everyone to be respectful and empathetic. Camael follows the [Code of Conduct](CODE_OF_CONDUCT.md).
